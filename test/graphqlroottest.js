@@ -22,7 +22,7 @@ describe("getGraphQLRoot", () => {
 
   describe("test", () => {
     it("should return database result when found", () => {
-      const test = { id: "42" };
+      const test = {};
 
       const root = getGraphQLRoot({
         getTest: id => (id === "42" ? test : undefined)
