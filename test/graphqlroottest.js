@@ -2,6 +2,7 @@
 
 const assert = require("assert");
 const getGraphQLRoot = require("../graphqlroot");
+const addMinutes = require("date-fns/add_minutes");
 
 describe("getGraphQLRoot", () => {
   it("should return an object", () => {
@@ -22,15 +23,14 @@ describe("getGraphQLRoot", () => {
 
   describe("test", () => {
     it("should return database result when found", () => {
-      const test = {};
-
+      const dbResult = {};
       const root = getGraphQLRoot({
-        getTest: id => (id === "42" ? test : undefined)
+        getTest: id => (id === "42" ? dbResult : undefined)
       });
 
       const result = root.test({ id: "42" });
 
-      assert.strictEqual(result, test);
+      assert.strictEqual(result, dbResult);
     });
 
     it("should return undefined when not found", () => {
@@ -46,27 +46,93 @@ describe("getGraphQLRoot", () => {
 
   describe("tests", () => {
     it("should return database result when found", () => {
-      const test = {};
-
+      const dbResult = {};
       const root = getGraphQLRoot({
-        findTests: substring => (substring === "ohn smit" ? test : undefined)
+        findTests: substring =>
+          substring === "ohn smit" ? dbResult : undefined
       });
 
       const result = root.tests({ substring: "ohn smit" });
 
-      assert.strictEqual(result, test);
+      assert.strictEqual(result, dbResult);
     });
-  });
 
-  describe("tests", () => {
     it("should return undefined when not found", () => {
       const root = getGraphQLRoot({
         findTests: () => undefined
       });
 
-      const result = root.tests({ substring: "ohn smit" });
+      const result = root.tests({ substring: "ohn  smit" });
 
       assert.strictEqual(result, undefined);
+    });
+  });
+
+  describe("updateTest", () => {
+    it("should update prompt and solution when isMinor is true", () => {
+      // Arrange
+      const args = {
+        id: 42,
+        prompt: "prompt",
+        solution: "solution",
+        isMinor: true
+      };
+      const dbResult = {};
+      const root = getGraphQLRoot({
+        updateTest: dbArgs => {
+          assert.deepStrictEqual(dbArgs, {
+            id: args.id,
+            prompt: args.prompt,
+            solution: args.solution,
+            state: undefined,
+            changeTime: undefined,
+            lastTicks: undefined,
+            nextTime: undefined
+          });
+          return dbResult;
+        }
+      });
+
+      // Act/Assert
+      const result = root.updateTest(args);
+
+      // Assert
+      assert.strictEqual(result, dbResult);
+    });
+
+    it("should update everyhing when isMinor is false", () => {
+      // Arrange
+      const args = {
+        id: 42,
+        prompt: "prompt",
+        solution: "solution",
+        isMinor: false
+      };
+      const now = new Date();
+      const dbResult = {};
+      const root = getGraphQLRoot(
+        {
+          updateTest: dbArgs => {
+            assert.deepStrictEqual(dbArgs, {
+              id: args.id,
+              prompt: args.prompt,
+              solution: args.solution,
+              state: "New",
+              changeTime: now,
+              lastTicks: 0,
+              nextTime: addMinutes(now, 30)
+            });
+            return dbResult;
+          }
+        },
+        () => now
+      );
+
+      // Act/Assert
+      const result = root.updateTest(args);
+
+      // Assert
+      assert.strictEqual(result, dbResult);
     });
   });
 });

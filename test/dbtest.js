@@ -46,7 +46,7 @@ beforeEach(() => {
 });
 
 describe("database", () => {
-  describe("get", () => {
+  describe("getTest", () => {
     it("should return correct data when id found", () => {
       const result = db.getTest(test1.id);
 

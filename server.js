@@ -45,5 +45,5 @@ function getRoot() {
     }
   ];
   const db = createArrayDb(testsData);
-  return getGraphQLRoot(db);
+  return getGraphQLRoot(db, () => new Date());
 }

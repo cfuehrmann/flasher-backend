@@ -2,7 +2,7 @@
 
 const addMinutes = require("date-fns/add_minutes");
 
-module.exports = database =>
+module.exports = (database, getTime) =>
   Object.freeze({
     test({ id }) {
       return database.getTest(id);
@@ -25,7 +25,7 @@ module.exports = database =>
         });
       }
 
-      const now = new Date();
+      const now = getTime();
 
       return database.updateTest({
         id: id,
