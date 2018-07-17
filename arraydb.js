@@ -1,7 +1,53 @@
 "use strict";
 
-module.exports = data =>
-  Object.freeze({
+module.exports = () => {
+  const data = [];
+
+  return Object.freeze({
+    createTest({
+      id,
+      prompt,
+      solution,
+      state,
+      changeTime,
+      lastTicks,
+      nextTime
+    }) {
+      if (typeof id !== "string") throw new TypeError("'id' is not string!");
+
+      if (typeof prompt !== "string")
+        throw new TypeError("'prompt' is not string!");
+
+      if (typeof solution !== "string")
+        throw new TypeError("'solution' is not string!");
+
+      if (typeof state !== "string")
+        throw new TypeError("'state' is not string!");
+
+      if (!(changeTime instanceof Date))
+        throw new TypeError("'changeTime' is not a Date!");
+
+      if (typeof lastTicks !== "number")
+        throw new TypeError("'lastTicks' is not a number!");
+
+      if (!(nextTime instanceof Date))
+        throw new TypeError("'nextTime' is not a Date!");
+
+      const [result] = data.filter(test => test.id === id);
+
+      if (result) throw new Error("Key already exists!");
+
+      data.push({
+        id,
+        prompt,
+        solution,
+        state,
+        changeTime,
+        lastTicks,
+        nextTime
+      });
+    },
+
     getTest(id) {
       const [result] = data.filter(test => test.id === id);
       if (result !== undefined) return Object.freeze({ ...result });
@@ -56,3 +102,4 @@ module.exports = data =>
       }
     }
   });
+};
