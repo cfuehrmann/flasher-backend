@@ -7,6 +7,7 @@ const expressGraphQL = require("express-graphql");
 const createDb = require("./arraydb");
 const schema = require("./schema");
 const getGraphQLRoot = require("./graphqlroot");
+const uuidv4 = require("uuid/v4");
 
 const app = express();
 
@@ -31,9 +32,9 @@ function getRoot() {
     prompt: "prompt1",
     solution: "solution1",
     state: "failed",
-    changeTime: "2018-01-01T18:25:24.000",
+    changeTime: new Date("2018-01-01T18:25:24.000"),
     lastTicks: 10000,
-    nextTime: "2018-02-01T18:25:24.000"
+    nextTime: new Date("2018-02-01T18:25:24.000")
   });
 
   db.createTest({
@@ -41,10 +42,10 @@ function getRoot() {
     prompt: "prompt2",
     solution: "solution2",
     state: "success",
-    changeTime: "2018-03-01T18:25:24.000",
+    changeTime: new Date("2018-03-01T18:25:24.000"),
     lastTicks: 10001,
-    nextTime: "2018-04-01T18:25:24.000"
+    nextTime: new Date("2018-04-01T18:25:24.000")
   });
 
-  return getGraphQLRoot(db, () => new Date());
+  return getGraphQLRoot(db, () => new Date(), uuidv4);
 }

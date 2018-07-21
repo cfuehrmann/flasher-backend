@@ -2,8 +2,22 @@
 
 const addMinutes = require("date-fns/add_minutes");
 
-module.exports = (database, getTime) =>
+module.exports = (database, getTime, createUuid) =>
   Object.freeze({
+    createTest({ prompt, solution }) {
+      const now = getTime();
+
+      return database.createTest({
+        id: createUuid(),
+        prompt,
+        solution,
+        state: "New",
+        changeTime: now,
+        lastTicks: 0,
+        nextTime: addMinutes(now, 10)
+      });
+    },
+
     test({ id }) {
       return database.getTest(id);
     },
@@ -17,11 +31,7 @@ module.exports = (database, getTime) =>
         return database.updateTest({
           id: id,
           prompt: prompt,
-          solution: solution,
-          state: undefined,
-          changeTime: undefined,
-          lastTicks: undefined,
-          nextTime: undefined
+          solution: solution
         });
       }
 

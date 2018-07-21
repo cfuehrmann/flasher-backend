@@ -9,6 +9,7 @@ describe("getGraphQLRoot", () => {
     const root = getGraphQLRoot({});
 
     assert.strictEqual(typeof root, "object");
+    assert.strictEqual(typeof root.createTest, "function");
     assert.strictEqual(typeof root.test, "function");
     assert.strictEqual(typeof root.tests, "function");
     assert.strictEqual(typeof root.updateTest, "function");
@@ -19,6 +20,33 @@ describe("getGraphQLRoot", () => {
 
     // @ts-ignore
     assert.throws(() => (root.test = "whatever"));
+  });
+
+  describe("createTest", () => {
+    it("should create database record with all fields initialized properly", () => {
+      //Arrange
+      const now = new Date("2018-07-21T01:02:04.567");
+      const uuid = "d9f77655-c17e-43a5-a7be-997a01d65c37";
+      const arg = { prompt: "prompt", solution: "solution" };
+      const root = getGraphQLRoot(
+        {
+          createTest: dbArg =>
+            assert.deepStrictEqual(dbArg, {
+              id: uuid,
+              ...arg,
+              state: "New",
+              changeTime: now,
+              lastTicks: 0,
+              nextTime: addMinutes(now, 10)
+            })
+        },
+        () => now,
+        () => uuid
+      );
+
+      // Act/Assert
+      root.createTest(arg);
+    });
   });
 
   describe("test", () => {
@@ -83,11 +111,7 @@ describe("getGraphQLRoot", () => {
           assert.deepStrictEqual(dbArgs, {
             id: args.id,
             prompt: args.prompt,
-            solution: args.solution,
-            state: undefined,
-            changeTime: undefined,
-            lastTicks: undefined,
-            nextTime: undefined
+            solution: args.solution
           });
           return dbResult;
         }
@@ -100,7 +124,7 @@ describe("getGraphQLRoot", () => {
       assert.strictEqual(result, dbResult);
     });
 
-    it("should update everyhing when isMinor is false", () => {
+    it("should update everything when isMinor is false", () => {
       // Arrange
       const args = {
         id: 42,
