@@ -1,8 +1,8 @@
 "use strict";
 
-const createFileDb = require("./filedb");
+const createFileDb = require("../app/filedb");
 
 module.exports = {
   // Configuration of the database to avoid the "constrained construction" antipattern
-  db: createFileDb("productiondb.json")
+  db: createFileDb("testdb.json")
 };

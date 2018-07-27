@@ -3,7 +3,7 @@
 const assert = require("assert");
 const {
   db: { connect, createEmptyDb }
-} = require("../testconfig");
+} = require("./testconfig");
 
 const test0 = Object.freeze({
   id: "0",

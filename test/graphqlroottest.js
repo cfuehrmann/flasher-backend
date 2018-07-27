@@ -1,7 +1,7 @@
 "use strict";
 
 const assert = require("assert");
-const getGraphQLRoot = require("../graphqlroot");
+const getGraphQLRoot = require("../app/graphqlroot");
 const addMinutes = require("date-fns/add_minutes");
 
 describe("getGraphQLRoot", () => {
