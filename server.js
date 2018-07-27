@@ -1,10 +1,10 @@
-// todo: add creatdb to graphql root
-
 "use strict";
 
 const express = require("express");
 const expressGraphQL = require("express-graphql");
-const createDb = require("./arraydb");
+const {
+  db: { connect: connectToDb }
+} = require("./productionconfig");
 const schema = require("./schema");
 const getGraphQLRoot = require("./graphqlroot");
 const uuidv4 = require("uuid/v4");
@@ -25,7 +25,7 @@ app.listen(4000, () =>
 );
 
 function getRoot() {
-  const db = createDb();
+  const db = connectToDb();
 
   db.createTest({
     id: "1",

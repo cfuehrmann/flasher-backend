@@ -1,2 +1,5 @@
 node_modules/
 .vscode/
+
+testdb.json
+productiondb.json

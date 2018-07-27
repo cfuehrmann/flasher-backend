@@ -1,7 +1,9 @@
 "use strict";
 
 const assert = require("assert");
-const createDb = require("../arraydb"); // todo: how to deal with plugged-in databases here?
+const {
+  db: { connect, createEmptyDb }
+} = require("../testconfig");
 
 const test0 = Object.freeze({
   id: "0",
@@ -46,7 +48,8 @@ const test1Changed = Object.freeze({
 let db;
 
 beforeEach(() => {
-  db = createDb();
+  createEmptyDb();
+  db = connect();
 });
 
 describe("database", () => {
@@ -64,11 +67,22 @@ describe("database", () => {
   });
 
   describe("createTest", () => {
-    it("should create tests that can then be retrieved", () => {
+    it("should create tests that can be retrieved", () => {
       db.createTest(test0);
       db.createTest(test1);
       const foundTest0 = db.getTest("0");
       const foundTest1 = db.getTest("1");
+
+      assert.deepStrictEqual(foundTest0, test0);
+      assert.deepStrictEqual(foundTest1, test1);
+    });
+
+    it("should create tests that can be retrieved through new connection", () => {
+      db.createTest(test0);
+      db.createTest(test1);
+      const newDb = connect();
+      const foundTest0 = newDb.getTest("0");
+      const foundTest1 = newDb.getTest("1");
 
       assert.deepStrictEqual(foundTest0, test0);
       assert.deepStrictEqual(foundTest1, test1);
@@ -239,6 +253,14 @@ describe("database", () => {
     it("should change the database", () => {
       db.updateTest(test1Changed);
       const foundTest = db.getTest(test1Changed.id);
+
+      assert.deepStrictEqual(foundTest, test1Changed);
+    });
+
+    it("should change the database persistently", () => {
+      db.updateTest(test1Changed);
+      const newDb = connect();
+      const foundTest = newDb.getTest(test1Changed.id);
 
       assert.deepStrictEqual(foundTest, test1Changed);
     });
