@@ -6,6 +6,7 @@ module.exports = buildSchema(`
     type Query {
       test(id: ID!): Test
       tests(substring: String!): [Test]
+      findNextTest: Test
     },
     type Mutation {
       updateTest(id: ID!, prompt: String, solution: String, isMinor: Boolean): Test

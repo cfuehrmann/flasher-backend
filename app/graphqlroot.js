@@ -46,5 +46,9 @@ module.exports = (database, getTime, createUuid) =>
         lastTicks: 0,
         nextTime: addMinutes(now, 30)
       });
+    },
+
+    findNextTest() {
+      return database.findNextTest(getTime());
     }
   });

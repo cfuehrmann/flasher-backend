@@ -112,6 +112,12 @@ module.exports = fileName => {
           writeJsonToFile(data);
           return Object.freeze({ ...test });
         }
+      },
+
+      findNextTest(time) {
+        return data
+          .filter(test => test.nextTime <= time)
+          .sort((test1, test2) => test1.nextTime - test2.nextTime)[0];
       }
     });
   }
