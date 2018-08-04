@@ -6,7 +6,7 @@ const {
   db: { connect: connectToDb }
 } = require("./productionconfig");
 const schema = require("./schema");
-const getGraphQLRoot = require("./graphqlroot");
+const domainLogic = require("./domainlogic");
 const uuidv4 = require("uuid/v4");
 
 const app = express();
@@ -26,5 +26,5 @@ app.listen(4000, () =>
 
 function getRoot() {
   const db = connectToDb();
-  return getGraphQLRoot(db, () => new Date(), uuidv4);
+  return domainLogic(db, () => new Date(), uuidv4);
 }

@@ -1,6 +1,7 @@
 "use strict";
 
 const addMinutes = require("date-fns/add_minutes");
+const { states } = require("./dbtypes");
 
 module.exports = (database, getTime, createUuid) =>
   Object.freeze({
@@ -11,7 +12,7 @@ module.exports = (database, getTime, createUuid) =>
         id: createUuid(),
         prompt,
         solution,
-        state: "New",
+        state: states.New,
         changeTime: now,
         lastTicks: 0,
         nextTime: addMinutes(now, 10)
@@ -41,7 +42,7 @@ module.exports = (database, getTime, createUuid) =>
         id: id,
         prompt: prompt,
         solution: solution,
-        state: "New",
+        state: states.New,
         changeTime: now,
         lastTicks: 0,
         nextTime: addMinutes(now, 30)

@@ -1,8 +1,9 @@
 "use strict";
 
 const assert = require("assert");
-const getGraphQLRoot = require("../app/graphqlroot");
+const getGraphQLRoot = require("../app/domainlogic");
 const addMinutes = require("date-fns/add_minutes");
+const { states } = require("../app/dbtypes");
 
 describe("getGraphQLRoot", () => {
   it("should return an object", () => {
@@ -35,7 +36,7 @@ describe("getGraphQLRoot", () => {
             assert.deepStrictEqual(dbArg, {
               id: uuid,
               ...arg,
-              state: "New",
+              state: states.New,
               changeTime: now,
               lastTicks: 0,
               nextTime: addMinutes(now, 10)
@@ -138,7 +139,7 @@ describe("getGraphQLRoot", () => {
               id: args.id,
               prompt: args.prompt,
               solution: args.solution,
-              state: "New",
+              state: states.New,
               changeTime: now,
               lastTicks: 0,
               nextTime: addMinutes(now, 30)

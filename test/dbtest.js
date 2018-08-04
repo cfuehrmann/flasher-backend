@@ -1,6 +1,8 @@
 "use strict";
 
 const assert = require("assert");
+const { states } = require("../app/dbtypes");
+
 const {
   db: { connect, createEmptyDb }
 } = require("./testconfig");
@@ -9,7 +11,7 @@ const test0 = Object.freeze({
   id: "0",
   prompt: "promptA0",
   solution: "solutionA0",
-  state: "state0",
+  state: states.New,
   changeTime: new Date("2018-01-01T18:25:24.000"),
   lastTicks: 10000,
   nextTime: new Date("2018-02-01T18:25:24.000")
@@ -19,7 +21,7 @@ const test1 = Object.freeze({
   id: "1",
   prompt: "promptA1",
   solution: "solutionB1",
-  state: "state1",
+  state: states.Ok,
   changeTime: new Date("2018-01-01T18:25:24.001"),
   lastTicks: 10001,
   nextTime: new Date("2018-02-01T18:25:24.001")
@@ -29,7 +31,7 @@ const test2 = Object.freeze({
   id: "2",
   prompt: "promptB2",
   solution: "solutionB2",
-  state: "state2",
+  state: states.Failed,
   changeTime: new Date("2018-01-01T18:25:24.002"),
   lastTicks: 10002,
   nextTime: new Date("2018-02-01T18:25:24.002")
@@ -39,7 +41,7 @@ const test1Changed = Object.freeze({
   id: "1",
   prompt: test1.prompt + "_changed",
   solution: test1.solution + "_changed",
-  state: test1.state + "_changed",
+  state: states.Failed,
   changeTime: new Date("2018-01-01T18:25:24.003"),
   lastTicks: test1.lastTicks + 1,
   nextTime: new Date("2018-02-01T18:25:24.003")
@@ -126,13 +128,31 @@ describe("database", () => {
       );
     });
 
-    it("should throw type error if 'state' no string", () => {
+    it("should throw type error if 'state' is undefined", () => {
       assert.throws(
         () => db.createTest({ ...test1, state: undefined }),
         err =>
           err instanceof TypeError &&
           err.message.includes("state") &&
-          err.message.includes("string")
+          Object.values(states).reduce(
+            (okSoFar, currentState) =>
+              okSoFar && err.message.includes(currentState),
+            true
+          )
+      );
+    });
+
+    it("should throw type error if 'state' is defined but no valid state", () => {
+      assert.throws(
+        () => db.createTest({ ...test1, state: "Foo" }),
+        err =>
+          err instanceof TypeError &&
+          err.message.includes("state") &&
+          Object.values(states).reduce(
+            (okSoFar, currentState) =>
+              okSoFar && err.message.includes(currentState),
+            true
+          )
       );
     });
 
@@ -316,13 +336,17 @@ describe("database", () => {
       );
     });
 
-    it("should throw type error if 'state' is defined but no string", () => {
+    it("should throw type error if 'state' is defined but no valid state", () => {
       assert.throws(
-        () => db.updateTest({ ...test1, state: 42 }),
+        () => db.updateTest({ ...test1, state: "Foo" }),
         err =>
           err instanceof TypeError &&
           err.message.includes("state") &&
-          err.message.includes("string")
+          Object.values(states).reduce(
+            (okSoFar, currentState) =>
+              okSoFar && err.message.includes(currentState),
+            true
+          )
       );
     });
 
