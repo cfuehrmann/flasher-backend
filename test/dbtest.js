@@ -356,4 +356,48 @@ describe("database", () => {
       );
     });
   });
+
+  describe("findNextTest", () => {
+    const nextTest = Object.freeze({
+      ...test0,
+      nextTime: new Date("2018-01-01T18:25:24.000")
+    });
+
+    beforeEach(() => {
+      db.createTest({
+        ...test0,
+        id: "1",
+        nextTime: new Date("2018-01-01T18:25:24.001")
+      });
+      db.createTest(nextTest);
+      db.createTest({
+        ...test0,
+        id: "2",
+        nextTime: new Date("2018-01-01T18:25:24.002")
+      });
+      db.createTest({
+        ...test0,
+        id: "3",
+        nextTime: new Date("2018-01-01T18:25:24.003")
+      });
+    });
+
+    it("should return next test when found", () => {
+      const result = db.findNextTest(new Date("2018-01-01T18:25:24.002"));
+
+      assert.deepStrictEqual(result, nextTest);
+    });
+
+    it("should return next test when just found", () => {
+      const result = db.findNextTest(new Date("2018-01-01T18:25:24.000"));
+
+      assert.deepStrictEqual(result, nextTest);
+    });
+
+    it("should return undefined when just missed", () => {
+      const result = db.findNextTest(new Date("2018-01-01T18:25:23.999"));
+
+      assert.strictEqual(result, undefined);
+    });
+  });
 });

@@ -13,6 +13,7 @@ describe("getGraphQLRoot", () => {
     assert.strictEqual(typeof root.test, "function");
     assert.strictEqual(typeof root.tests, "function");
     assert.strictEqual(typeof root.updateTest, "function");
+    assert.strictEqual(typeof root.findNextTest, "function");
   });
 
   it("should return frozen object", () => {
@@ -62,9 +63,7 @@ describe("getGraphQLRoot", () => {
     });
 
     it("should return undefined when not found", () => {
-      const root = getGraphQLRoot({
-        getTest: () => undefined
-      });
+      const root = getGraphQLRoot({ getTest: () => undefined });
 
       const result = root.test({ id: "42" });
 
@@ -86,9 +85,7 @@ describe("getGraphQLRoot", () => {
     });
 
     it("should return undefined when not found", () => {
-      const root = getGraphQLRoot({
-        findTests: () => undefined
-      });
+      const root = getGraphQLRoot({ findTests: () => undefined });
 
       const result = root.tests({ substring: "ohn  smit" });
 
@@ -157,6 +154,30 @@ describe("getGraphQLRoot", () => {
 
       // Assert
       assert.strictEqual(result, dbResult);
+    });
+  });
+
+  describe("findNextTest", () => {
+    it("should return database result when found", () => {
+      const now = new Date("2018-07-29T17:53:12.345Z");
+      const dbResult = {};
+      const root = getGraphQLRoot(
+        { findNextTest: time => (time === now ? dbResult : undefined) },
+        () => now
+      );
+
+      const result = root.findNextTest();
+
+      assert.strictEqual(result, dbResult);
+    });
+
+    it("should return undefined when not found", () => {
+      const now = new Date("2018-07-29T17:53:12.345Z");
+      const root = getGraphQLRoot({ findNextTest: () => undefined }, () => now);
+
+      const result = root.findNextTest();
+
+      assert.strictEqual(result, undefined);
     });
   });
 });
