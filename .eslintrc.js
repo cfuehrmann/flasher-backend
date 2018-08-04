@@ -4,10 +4,7 @@ module.exports = {
     node: true,
     mocha: true
   },
-  extends: "eslint:recommended",
-  parserOptions: {
-    ecmaVersion: 2018
-  },
+  extends: ["eslint:recommended", "plugin:node/recommended"],
   rules: {
     strict: 1,
     "no-var": 1,
