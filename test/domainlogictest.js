@@ -1,27 +1,27 @@
 "use strict";
 
 const assert = require("assert");
-const getGraphQLRoot = require("../app/domainlogic");
-const addMinutes = require("date-fns/add_minutes");
+const domainLogic = require("../app/domainlogic");
+const { addMinutes, addSeconds, subSeconds } = require("date-fns");
 const { states } = require("../app/dbtypes");
 
-describe("getGraphQLRoot", () => {
+describe("domainLogic", () => {
   it("should return an object", () => {
-    const root = getGraphQLRoot({});
+    const logic = domainLogic({});
 
-    assert.strictEqual(typeof root, "object");
-    assert.strictEqual(typeof root.createTest, "function");
-    assert.strictEqual(typeof root.test, "function");
-    assert.strictEqual(typeof root.tests, "function");
-    assert.strictEqual(typeof root.updateTest, "function");
-    assert.strictEqual(typeof root.findNextTest, "function");
+    assert.strictEqual(typeof logic, "object");
+    assert.strictEqual(typeof logic.createTest, "function");
+    assert.strictEqual(typeof logic.test, "function");
+    assert.strictEqual(typeof logic.tests, "function");
+    assert.strictEqual(typeof logic.updateTest, "function");
+    assert.strictEqual(typeof logic.findNextTest, "function");
   });
 
   it("should return frozen object", () => {
-    const root = getGraphQLRoot({});
+    const logic = domainLogic({});
 
     // @ts-ignore
-    assert.throws(() => (root.test = "whatever"));
+    assert.throws(() => (logic.test = "whatever"));
   });
 
   describe("createTest", () => {
@@ -30,7 +30,7 @@ describe("getGraphQLRoot", () => {
       const now = new Date("2018-07-21T01:02:04.567");
       const uuid = "d9f77655-c17e-43a5-a7be-997a01d65c37";
       const arg = { prompt: "prompt", solution: "solution" };
-      const root = getGraphQLRoot(
+      const logic = domainLogic(
         {
           createTest: dbArg =>
             assert.deepStrictEqual(dbArg, {
@@ -47,26 +47,26 @@ describe("getGraphQLRoot", () => {
       );
 
       // Act/Assert
-      root.createTest(arg);
+      logic.createTest(arg);
     });
   });
 
   describe("test", () => {
     it("should return database result when found", () => {
       const dbResult = {};
-      const root = getGraphQLRoot({
+      const logic = domainLogic({
         getTest: id => (id === "42" ? dbResult : undefined)
       });
 
-      const result = root.test({ id: "42" });
+      const result = logic.test({ id: "42" });
 
       assert.strictEqual(result, dbResult);
     });
 
     it("should return undefined when not found", () => {
-      const root = getGraphQLRoot({ getTest: () => undefined });
+      const logic = domainLogic({ getTest: () => undefined });
 
-      const result = root.test({ id: "42" });
+      const result = logic.test({ id: "42" });
 
       assert.strictEqual(result, undefined);
     });
@@ -75,20 +75,20 @@ describe("getGraphQLRoot", () => {
   describe("tests", () => {
     it("should return database result when found", () => {
       const dbResult = {};
-      const root = getGraphQLRoot({
+      const logic = domainLogic({
         findTests: substring =>
           substring === "ohn smit" ? dbResult : undefined
       });
 
-      const result = root.tests({ substring: "ohn smit" });
+      const result = logic.tests({ substring: "ohn smit" });
 
       assert.strictEqual(result, dbResult);
     });
 
     it("should return undefined when not found", () => {
-      const root = getGraphQLRoot({ findTests: () => undefined });
+      const logic = domainLogic({ findTests: () => undefined });
 
-      const result = root.tests({ substring: "ohn  smit" });
+      const result = logic.tests({ substring: "ohn  smit" });
 
       assert.strictEqual(result, undefined);
     });
@@ -104,7 +104,7 @@ describe("getGraphQLRoot", () => {
         isMinor: true
       };
       const dbResult = {};
-      const root = getGraphQLRoot({
+      const logic = domainLogic({
         updateTest: dbArgs => {
           assert.deepStrictEqual(dbArgs, {
             id: args.id,
@@ -116,7 +116,7 @@ describe("getGraphQLRoot", () => {
       });
 
       // Act/Assert
-      const result = root.updateTest(args);
+      const result = logic.updateTest(args);
 
       // Assert
       assert.strictEqual(result, dbResult);
@@ -132,7 +132,7 @@ describe("getGraphQLRoot", () => {
       };
       const now = new Date();
       const dbResult = {};
-      const root = getGraphQLRoot(
+      const logic = domainLogic(
         {
           updateTest: dbArgs => {
             assert.deepStrictEqual(dbArgs, {
@@ -151,7 +151,7 @@ describe("getGraphQLRoot", () => {
       );
 
       // Act/Assert
-      const result = root.updateTest(args);
+      const result = logic.updateTest(args);
 
       // Assert
       assert.strictEqual(result, dbResult);
@@ -162,23 +162,100 @@ describe("getGraphQLRoot", () => {
     it("should return database result when found", () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
       const dbResult = {};
-      const root = getGraphQLRoot(
+      const logic = domainLogic(
         { findNextTest: time => (time === now ? dbResult : undefined) },
         () => now
       );
 
-      const result = root.findNextTest();
+      const result = logic.findNextTest();
 
       assert.strictEqual(result, dbResult);
     });
 
     it("should return undefined when not found", () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
-      const root = getGraphQLRoot({ findNextTest: () => undefined }, () => now);
+      const logic = domainLogic({ findNextTest: () => undefined }, () => now);
 
-      const result = root.findNextTest();
+      const result = logic.findNextTest();
 
       assert.strictEqual(result, undefined);
+    });
+  });
+
+  describe("setOk/setFailed", () => {
+    const now = new Date("2018-07-29T17:01:02.345Z");
+    const passedTime = 41;
+
+    const someTest = Object.freeze({
+      id: "someId",
+      prompt: "prompt",
+      solution: "solution",
+      state: states.New,
+      changeTime: subSeconds(now, passedTime),
+      nextTime: subSeconds(now, 100)
+    });
+
+    function getTest({ id }) {
+      return id === someTest.id ? someTest : undefined;
+    }
+
+    it("setOk should work correctly when test found", () => {
+      const database = {
+        getTest,
+        updateTest: test =>
+          assert.deepStrictEqual(test, {
+            id: someTest.id,
+            state: states.Ok,
+            changeTime: now,
+            nextTime: addSeconds(now, passedTime * 2)
+          })
+      };
+      const logic = domainLogic(database, () => now);
+
+      logic.setOk({ id: someTest.id });
+    });
+
+    it("setFailed should work correctly when test found", () => {
+      const database = {
+        getTest,
+        updateTest: test =>
+          assert.deepStrictEqual(test, {
+            id: someTest.id,
+            state: states.Failed,
+            changeTime: now,
+            nextTime: addSeconds(now, Math.floor(passedTime / 2))
+          })
+      };
+      const logic = domainLogic(database, () => now);
+
+      logic.setFailed({ id: someTest.id });
+    });
+
+    const nonExistingId = "nonExistingId";
+
+    const emptyDb = Object.freeze({
+      getTest: () => undefined,
+      updateTest: () => {
+        throw new Error("updateTest should not be called");
+      }
+    });
+
+    it("setOk should throw error when id not found", () => {
+      const logic = domainLogic(emptyDb);
+
+      assert.throws(
+        () => logic.setOk({ id: nonExistingId }),
+        err => err.message.includes(nonExistingId)
+      );
+    });
+
+    it("setFailed should throw error when id not found", () => {
+      const logic = domainLogic(emptyDb);
+
+      assert.throws(
+        () => logic.setFailed({ id: nonExistingId }),
+        err => err.message.includes(nonExistingId)
+      );
     });
   });
 });

@@ -1,10 +1,10 @@
 "use strict";
 
-const addMinutes = require("date-fns/add_minutes");
+const { addMinutes, addSeconds, differenceInSeconds } = require("date-fns");
 const { states } = require("./dbtypes");
 
-module.exports = (database, getTime, createUuid) =>
-  Object.freeze({
+module.exports = (database, getTime, createUuid) => {
+  return Object.freeze({
     createTest({ prompt, solution }) {
       const now = getTime();
 
@@ -51,5 +51,39 @@ module.exports = (database, getTime, createUuid) =>
 
     findNextTest() {
       return database.findNextTest(getTime());
+    },
+
+    setOk({ id }) {
+      return setResult({
+        id,
+        state: states.Ok,
+        getTimeToWait: passedTime => passedTime * 2
+      });
+    },
+
+    setFailed({ id }) {
+      return setResult({
+        id,
+        state: states.Failed,
+        getTimeToWait: passedTime => Math.floor(passedTime / 2)
+      });
     }
   });
+
+  function setResult({ id, state, getTimeToWait }) {
+    const test = database.getTest({ id });
+
+    if (!test) throw new Error(`Test with id '${id}' not found!`);
+
+    const now = getTime();
+
+    const passedTime = differenceInSeconds(now, test.changeTime);
+
+    database.updateTest({
+      id,
+      state,
+      changeTime: now,
+      nextTime: addSeconds(now, getTimeToWait(passedTime))
+    });
+  }
+};

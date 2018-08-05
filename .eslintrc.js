@@ -13,7 +13,6 @@ module.exports = {
     "prefer-destructuring": 1,
     "arrow-body-style": 1,
     "no-console": 0,
-    indent: ["error", 2],
     "linebreak-style": ["error", "windows"],
     quotes: ["error", "double"],
     semi: ["error", "always"]
