@@ -1,8 +1,6 @@
-"use strict";
+import { buildSchema } from 'graphql';
 
-const { buildSchema } = require("graphql");
-
-module.exports = buildSchema(`
+export default buildSchema(`
     type Query {
       test(id: ID!): Test
       tests(substring: String!): [Test]
