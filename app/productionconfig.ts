@@ -1,4 +1,4 @@
-import * as fileDb from './filedb';
+import { createFileDb } from './filedb';
 
 // Configuration of the database to avoid the "constrained construction" antipattern
-export const db = fileDb.createFileDb(__dirname + '/productiondb.json');
+export const db = createFileDb(__dirname + '/productiondb.json');

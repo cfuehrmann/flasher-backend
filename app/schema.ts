@@ -1,6 +1,6 @@
 import { buildSchema } from 'graphql';
 
-export default buildSchema(`
+export const schema = buildSchema(`
     type Query {
       test(id: ID!): Test
       tests(substring: String!): [Test]

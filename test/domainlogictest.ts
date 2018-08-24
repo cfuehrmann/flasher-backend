@@ -1,13 +1,13 @@
 import * as assert from 'assert';
 import { domainLogic } from '../app/domainlogic';
 import { addMinutes, addSeconds, subSeconds } from 'date-fns';
-import { Test, PartialTest, DataBase } from '../app/types';
+import { Test, TestUpdate, DataBase } from '../app/types';
 
 describe('domainLogic', () => {
   const database = Object.freeze<DataBase>({
     createTest(test) {},
     getTest: id => undefined,
-    findTests: subString => [],
+    findTests: substring => [],
     updateTest: test => undefined,
     findNextTest: time => undefined,
   });
@@ -113,7 +113,7 @@ describe('domainLogic', () => {
         solution: 'solution',
         isMinor: true,
       };
-      const expectedArgs: PartialTest = {
+      const expectedArgs: TestUpdate = {
         id: args.id,
         prompt: args.prompt,
         solution: args.solution,
@@ -150,7 +150,7 @@ describe('domainLogic', () => {
         {
           ...database,
           updateTest: dbArgs => {
-            const expected: PartialTest = {
+            const expected: TestUpdate = {
               id: args.id,
               prompt: args.prompt,
               solution: args.solution,
@@ -225,7 +225,7 @@ describe('domainLogic', () => {
     }
 
     it('setOk should work correctly when test found', () => {
-      const partialTest: PartialTest = {
+      const partialTest: TestUpdate = {
         id: someTest.id,
         state: 'Ok',
         changeTime: now,
@@ -248,7 +248,7 @@ describe('domainLogic', () => {
     });
 
     it('setFailed should work correctly when test found', () => {
-      const partialTest: PartialTest = {
+      const partialTest: TestUpdate = {
         id: someTest.id,
         state: 'Failed',
         changeTime: now,

@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as expressGraphQL from 'express-graphql';
 import { db } from './productionconfig';
-import schema from './schema';
+import { schema } from './schema';
 import { domainLogic } from './domainlogic';
 import { v4 as uuidv4 } from 'uuid';
 
