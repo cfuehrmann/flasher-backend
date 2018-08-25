@@ -14,8 +14,7 @@ type TestUpdatables = {
   solution: string;
   state: State;
   changeTime: Date;
-  lastTicks: number;
   nextTime: Date;
 };
 
-export type State = 'New' | 'Ok' | 'Failed';
+export type State = "New" | "Ok" | "Failed";

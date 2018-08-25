@@ -33,15 +33,7 @@ export const createFileDb = (fileName: string) => {
           .map(test => ({ ...test }));
       },
 
-      updateTest({
-        id,
-        prompt,
-        solution,
-        state,
-        changeTime,
-        lastTicks,
-        nextTime
-      }) {
+      updateTest({ id, prompt, solution, state, changeTime, nextTime }) {
         for (const test of data) {
           if (test.id !== id) continue;
 
@@ -49,7 +41,6 @@ export const createFileDb = (fileName: string) => {
           if (solution !== undefined) test.solution = solution;
           if (state !== undefined) test.state = state;
           if (changeTime !== undefined) test.changeTime = changeTime;
-          if (lastTicks !== undefined) test.lastTicks = lastTicks;
           if (nextTime !== undefined) test.nextTime = nextTime;
 
           writeJsonToFile(data);

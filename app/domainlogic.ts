@@ -1,5 +1,5 @@
-import { addMinutes, addSeconds, differenceInSeconds } from 'date-fns';
-import { State, DataBase } from './types';
+import { addMinutes, addSeconds, differenceInSeconds } from "date-fns";
+import { State, DataBase } from "./types";
 
 export const domainLogic = (
   database: DataBase,
@@ -14,10 +14,9 @@ export const domainLogic = (
         id: createUuid(),
         prompt,
         solution,
-        state: 'New',
+        state: "New",
         changeTime: now,
-        lastTicks: 0,
-        nextTime: addMinutes(now, 10),
+        nextTime: addMinutes(now, 10)
       });
     },
 
@@ -33,7 +32,7 @@ export const domainLogic = (
       id,
       prompt,
       solution,
-      isMinor,
+      isMinor
     }: {
       id: string;
       prompt: string;
@@ -44,7 +43,7 @@ export const domainLogic = (
         return database.updateTest({
           id: id,
           prompt: prompt,
-          solution: solution,
+          solution: solution
         });
       }
 
@@ -54,10 +53,9 @@ export const domainLogic = (
         id: id,
         prompt: prompt,
         solution: solution,
-        state: 'New',
+        state: "New",
         changeTime: now,
-        lastTicks: 0,
-        nextTime: addMinutes(now, 30),
+        nextTime: addMinutes(now, 30)
       });
     },
 
@@ -68,24 +66,24 @@ export const domainLogic = (
     setOk({ id }: { id: string }) {
       return setResult({
         id,
-        state: 'Ok',
-        getTimeToWait: (passedTime: number) => passedTime * 2,
+        state: "Ok",
+        getTimeToWait: (passedTime: number) => passedTime * 2
       });
     },
 
     setFailed({ id }: { id: string }) {
       return setResult({
         id,
-        state: 'Failed',
-        getTimeToWait: (passedTime: number) => Math.floor(passedTime / 2),
+        state: "Failed",
+        getTimeToWait: (passedTime: number) => Math.floor(passedTime / 2)
       });
-    },
+    }
   };
 
   function setResult({
     id,
     state,
-    getTimeToWait,
+    getTimeToWait
   }: {
     id: string;
     state: State;
@@ -103,7 +101,7 @@ export const domainLogic = (
       id,
       state,
       changeTime: now,
-      nextTime: addSeconds(now, getTimeToWait(passedTime)),
+      nextTime: addSeconds(now, getTimeToWait(passedTime))
     });
   }
 };

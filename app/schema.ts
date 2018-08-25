@@ -1,4 +1,4 @@
-import { buildSchema } from 'graphql';
+import { buildSchema } from "graphql";
 
 export const schema = buildSchema(`
     type Query {
@@ -15,7 +15,6 @@ export const schema = buildSchema(`
       solution: String!
       state: String!
       changeTime: String!
-      lastTicks: Int!
       nextTime: String!
     }
   `);
