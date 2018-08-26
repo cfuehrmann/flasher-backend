@@ -1,18 +1,18 @@
 import * as assert from "assert";
-import { domainLogic } from "../app/domainlogic";
 import { addMinutes, addSeconds, subSeconds } from "date-fns";
-import { Test, TestUpdate, DataBase } from "../app/types";
+import { domainLogic } from "../app/domainlogic";
+import { DataBase, Test, TestUpdate } from "../app/types";
 
 describe("domainLogic", () => {
   const database = Object.freeze<DataBase>({
-    createTest(test) {},
+    createTest: test => undefined,
     getTest: id => undefined,
     findTests: substring => [],
     updateTest: test => undefined,
     findNextTest: time => undefined
   });
 
-  const someTest = Object.freeze<Test>({
+  const skeletalTest = Object.freeze<Test>({
     id: "",
     prompt: "",
     solution: "",
@@ -27,7 +27,7 @@ describe("domainLogic", () => {
 
   describe("createTest", () => {
     it("should create database record with all fields initialized properly", () => {
-      //Arrange
+      // Arrange
       const now = new Date("2018-07-21T01:02:04.567");
       const uuid = "d9f77655-c17e-43a5-a7be-997a01d65c37";
       const arg = { prompt: "prompt", solution: "solution" };
@@ -59,7 +59,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         {
           ...database,
-          getTest: id => (id === "42" ? someTest : undefined)
+          getTest: id => (id === "42" ? skeletalTest : undefined)
         },
         () => new Date(),
         () => "someId"
@@ -67,7 +67,7 @@ describe("domainLogic", () => {
 
       const result = logic.test({ id: "42" });
 
-      assert.strictEqual(result, someTest);
+      assert.strictEqual(result, skeletalTest);
     });
 
     it("should return undefined when not found", () => {
@@ -85,7 +85,7 @@ describe("domainLogic", () => {
 
   describe("tests", () => {
     it("should return database result", () => {
-      const dbResult = [someTest];
+      const dbResult = [skeletalTest];
 
       const logic = domainLogic(
         {
@@ -121,7 +121,7 @@ describe("domainLogic", () => {
           ...database,
           updateTest: dbArgs => {
             assert.deepStrictEqual(dbArgs, expectedArgs);
-            return someTest;
+            return skeletalTest;
           }
         },
         () => new Date(),
@@ -132,7 +132,7 @@ describe("domainLogic", () => {
       const result = logic.updateTest(args);
 
       // Assert
-      assert.strictEqual(result, someTest);
+      assert.strictEqual(result, skeletalTest);
     });
 
     it("should update everything when isMinor is false", () => {
@@ -157,7 +157,7 @@ describe("domainLogic", () => {
               nextTime: addMinutes(now, 30)
             };
             assert.deepStrictEqual(dbArgs, expected);
-            return someTest;
+            return skeletalTest;
           }
         },
         () => now,
@@ -168,7 +168,7 @@ describe("domainLogic", () => {
       const result = logic.updateTest(args);
 
       // Assert
-      assert.strictEqual(result, someTest);
+      assert.strictEqual(result, skeletalTest);
     });
   });
 
@@ -178,7 +178,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         {
           ...database,
-          findNextTest: time => (time === now ? someTest : undefined)
+          findNextTest: time => (time === now ? skeletalTest : undefined)
         },
         () => now,
         () => "someId"
@@ -186,7 +186,7 @@ describe("domainLogic", () => {
 
       const result = logic.findNextTest();
 
-      assert.strictEqual(result, someTest);
+      assert.strictEqual(result, skeletalTest);
     });
 
     it("should return undefined when not found", () => {
@@ -207,7 +207,7 @@ describe("domainLogic", () => {
     const now = new Date("2018-07-29T17:01:02.345Z");
     const passedTime = 41;
 
-    const someTest = Object.freeze<Test>({
+    const test = Object.freeze<Test>({
       id: "someId",
       prompt: "prompt",
       solution: "solution",
@@ -217,12 +217,12 @@ describe("domainLogic", () => {
     });
 
     function getTest(id: string) {
-      return id === someTest.id ? someTest : undefined;
+      return id === test.id ? test : undefined;
     }
 
     it("setOk should work correctly when test found", () => {
-      const partialTest: TestUpdate = {
-        id: someTest.id,
+      const update: TestUpdate = {
+        id: test.id,
         state: "Ok",
         changeTime: now,
         nextTime: addSeconds(now, passedTime * 2)
@@ -231,8 +231,8 @@ describe("domainLogic", () => {
         {
           ...database,
           getTest,
-          updateTest: test => {
-            assert.deepStrictEqual(test, partialTest);
+          updateTest: u => {
+            assert.deepStrictEqual(u, update);
             return undefined;
           }
         },
@@ -240,12 +240,12 @@ describe("domainLogic", () => {
         () => "someId"
       );
 
-      logic.setOk({ id: someTest.id });
+      logic.setOk({ id: test.id });
     });
 
     it("setFailed should work correctly when test found", () => {
-      const partialTest: TestUpdate = {
-        id: someTest.id,
+      const update: TestUpdate = {
+        id: test.id,
         state: "Failed",
         changeTime: now,
         nextTime: addSeconds(now, Math.floor(passedTime / 2))
@@ -254,8 +254,8 @@ describe("domainLogic", () => {
         {
           ...database,
           getTest,
-          updateTest: test => {
-            assert.deepStrictEqual(test, partialTest);
+          updateTest: u => {
+            assert.deepStrictEqual(u, update);
             return undefined;
           }
         },
@@ -263,7 +263,7 @@ describe("domainLogic", () => {
         () => "someId"
       );
 
-      logic.setFailed({ id: someTest.id });
+      logic.setFailed({ id: test.id });
     });
 
     const nonExistingId = "nonExistingId";
@@ -271,7 +271,7 @@ describe("domainLogic", () => {
     const emptyDb = Object.freeze<DataBase>({
       ...database,
       getTest: id => undefined,
-      updateTest: test => {
+      updateTest: update => {
         throw new Error("updateTest should not be called");
       }
     });

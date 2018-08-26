@@ -1,6 +1,6 @@
 import * as assert from "assert";
+import { DataBase, Test } from "../app/types";
 import { dbConnector } from "./testconfig";
-import { Test, DataBase } from "../app/types";
 
 const test0 = Object.freeze<Test>({
   id: "0",
@@ -116,7 +116,10 @@ describe("database", () => {
       const result = db.findTests("romptA");
 
       const lookup: { [key: string]: Test } = {};
-      for (const record of result) lookup[record.id] = record;
+      
+      for (const record of result) {
+        lookup[record.id] = record;
+      }
 
       assert.strictEqual(Object.keys(lookup).length, 2);
       assert.deepStrictEqual(lookup["0"], test0);
@@ -127,7 +130,10 @@ describe("database", () => {
       const result = db.findTests("tionB");
 
       const lookup: { [key: string]: Test } = {};
-      for (const record of result) lookup[record.id] = record;
+
+      for (const record of result) {
+        lookup[record.id] = record;
+      }
 
       assert.strictEqual(Object.keys(lookup).length, 2);
       assert.deepStrictEqual(lookup["1"], test1);

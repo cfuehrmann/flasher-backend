@@ -1,5 +1,5 @@
 import { addMinutes, addSeconds, differenceInSeconds } from "date-fns";
-import { State, DataBase } from "./types";
+import { DataBase, State } from "./types";
 
 export const domainLogic = (
   database: DataBase,
@@ -40,19 +40,15 @@ export const domainLogic = (
       isMinor: boolean;
     }) {
       if (isMinor) {
-        return database.updateTest({
-          id: id,
-          prompt: prompt,
-          solution: solution
-        });
+        return database.updateTest({ id, prompt, solution });
       }
 
       const now = getTime();
 
       return database.updateTest({
-        id: id,
-        prompt: prompt,
-        solution: solution,
+        id,
+        prompt,
+        solution,
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 30)
@@ -91,7 +87,9 @@ export const domainLogic = (
   }) {
     const test = database.getTest(id);
 
-    if (!test) throw new Error(`Test with id '${id}' not found!`);
+    if (!test) {
+      throw new Error(`Test with id '${id}' not found!`);
+    }
 
     const now = getTime();
 

@@ -1,5 +1,5 @@
-import { Test, DataBase } from "./types";
 import * as fs from "fs";
+import { DataBase, Test } from "./types";
 
 export const createFileDb = (fileName: string) => {
   const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
@@ -13,14 +13,18 @@ export const createFileDb = (fileName: string) => {
     return {
       createTest(test) {
         const [result] = data.filter(t => t.id === test.id);
-        if (result) throw new Error("Key already exists!");
+        if (result) {
+          throw new Error("Key already exists!");
+        }
         data.push({ ...test });
         writeJsonToFile(data);
       },
 
       getTest(id) {
         const [result] = data.filter(test => test.id === id);
-        if (result !== undefined) return { ...result };
+        if (result !== undefined) {
+          return { ...result };
+        }
       },
 
       findTests(substring) {
@@ -35,13 +39,25 @@ export const createFileDb = (fileName: string) => {
 
       updateTest({ id, prompt, solution, state, changeTime, nextTime }) {
         for (const test of data) {
-          if (test.id !== id) continue;
+          if (test.id !== id) {
+            continue;
+          }
 
-          if (prompt !== undefined) test.prompt = prompt;
-          if (solution !== undefined) test.solution = solution;
-          if (state !== undefined) test.state = state;
-          if (changeTime !== undefined) test.changeTime = changeTime;
-          if (nextTime !== undefined) test.nextTime = nextTime;
+          if (prompt !== undefined) {
+            test.prompt = prompt;
+          }
+          if (solution !== undefined) {
+            test.solution = solution;
+          }
+          if (state !== undefined) {
+            test.state = state;
+          }
+          if (changeTime !== undefined) {
+            test.changeTime = changeTime;
+          }
+          if (nextTime !== undefined) {
+            test.nextTime = nextTime;
+          }
 
           writeJsonToFile(data);
 
