@@ -8,8 +8,10 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "tslint": "tslint app/*.ts test/*.ts -t verbose",
-    "test": "tsc && mocha --recursive ./dist/test/*.js"
+    "watch-build": "tsc -w",
+    "test": "mocha --recursive ./dist/test/*.js",
+    "watch-test": "mocha --watch --recursive ./dist/test/*.js",
+    "tslint": "tslint app/*.ts test/*.ts -t verbose"
   },
   "author": "",
   "license": "ISC",
