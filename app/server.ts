@@ -12,13 +12,13 @@ app.use(
   expressGraphQL({
     schema,
     rootValue: getRoot(),
-    graphiql: true
+    graphiql: true,
   })
 );
 
-app.listen(4000, () =>
-  console.log("Express GraphQL Server Now Running On localhost:4000/graphql")
-);
+app.listen(4000, () => {
+  console.log("Express GraphQL Server Now Running On localhost:4000/graphql");
+});
 
 function getRoot() {
   const d = db.connect();

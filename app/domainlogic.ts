@@ -10,13 +10,13 @@ export const domainLogic = (
     createTest({ prompt, solution }: { prompt: string; solution: string }) {
       const now = getTime();
 
-      return database.createTest({
+      database.createTest({
         id: createUuid(),
         prompt,
         solution,
         state: "New",
         changeTime: now,
-        nextTime: addMinutes(now, 10)
+        nextTime: addMinutes(now, 10),
       });
     },
 
@@ -32,7 +32,7 @@ export const domainLogic = (
       id,
       prompt,
       solution,
-      isMinor
+      isMinor,
     }: {
       id: string;
       prompt: string;
@@ -51,7 +51,7 @@ export const domainLogic = (
         solution,
         state: "New",
         changeTime: now,
-        nextTime: addMinutes(now, 30)
+        nextTime: addMinutes(now, 30),
       });
     },
 
@@ -60,26 +60,26 @@ export const domainLogic = (
     },
 
     setOk({ id }: { id: string }) {
-      return setResult({
+      setResult({
         id,
         state: "Ok",
-        getTimeToWait: (passedTime: number) => passedTime * 2
+        getTimeToWait: (passedTime: number) => passedTime * 2,
       });
     },
 
     setFailed({ id }: { id: string }) {
-      return setResult({
+      setResult({
         id,
         state: "Failed",
-        getTimeToWait: (passedTime: number) => Math.floor(passedTime / 2)
+        getTimeToWait: (passedTime: number) => Math.floor(passedTime / 2),
       });
-    }
+    },
   };
 
   function setResult({
     id,
     state,
-    getTimeToWait
+    getTimeToWait,
   }: {
     id: string;
     state: State;
@@ -87,7 +87,7 @@ export const domainLogic = (
   }) {
     const test = database.getTest(id);
 
-    if (!test) {
+    if (test === undefined) {
       throw new Error(`Test with id '${id}' not found!`);
     }
 
@@ -99,7 +99,7 @@ export const domainLogic = (
       id,
       state,
       changeTime: now,
-      nextTime: addSeconds(now, getTimeToWait(passedTime))
+      nextTime: addSeconds(now, getTimeToWait(passedTime)),
     });
   }
 };

@@ -9,7 +9,7 @@ describe("domainLogic", () => {
     getTest: id => undefined,
     findTests: substring => [],
     updateTest: test => undefined,
-    findNextTest: time => undefined
+    findNextTest: time => undefined,
   });
 
   const skeletalTest = Object.freeze<Test>({
@@ -18,7 +18,7 @@ describe("domainLogic", () => {
     solution: "",
     changeTime: new Date(),
     nextTime: new Date(),
-    state: "Ok"
+    state: "Ok",
   });
 
   it("creation should not crash", () => {
@@ -40,10 +40,10 @@ describe("domainLogic", () => {
               ...arg,
               state: "New",
               changeTime: now,
-              nextTime: addMinutes(now, 10)
+              nextTime: addMinutes(now, 10),
             };
             assert.deepStrictEqual(dbArg, expected);
-          }
+          },
         },
         () => now,
         () => uuid
@@ -59,7 +59,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         {
           ...database,
-          getTest: id => (id === "42" ? skeletalTest : undefined)
+          getTest: id => (id === "42" ? skeletalTest : undefined),
         },
         () => new Date(),
         () => "someId"
@@ -90,7 +90,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         {
           ...database,
-          findTests: substring => (substring === "ohn smit" ? dbResult : [])
+          findTests: substring => (substring === "ohn smit" ? dbResult : []),
         },
         () => new Date(),
         () => "someId"
@@ -109,12 +109,12 @@ describe("domainLogic", () => {
         id: "42",
         prompt: "prompt",
         solution: "solution",
-        isMinor: true
+        isMinor: true,
       };
       const expectedArgs: TestUpdate = {
         id: args.id,
         prompt: args.prompt,
-        solution: args.solution
+        solution: args.solution,
       };
       const logic = domainLogic(
         {
@@ -122,7 +122,7 @@ describe("domainLogic", () => {
           updateTest: dbArgs => {
             assert.deepStrictEqual(dbArgs, expectedArgs);
             return skeletalTest;
-          }
+          },
         },
         () => new Date(),
         () => "someId"
@@ -141,7 +141,7 @@ describe("domainLogic", () => {
         id: "42",
         prompt: "prompt",
         solution: "solution",
-        isMinor: false
+        isMinor: false,
       };
       const now = new Date();
       const logic = domainLogic(
@@ -154,11 +154,11 @@ describe("domainLogic", () => {
               solution: args.solution,
               state: "New",
               changeTime: now,
-              nextTime: addMinutes(now, 30)
+              nextTime: addMinutes(now, 30),
             };
             assert.deepStrictEqual(dbArgs, expected);
             return skeletalTest;
-          }
+          },
         },
         () => now,
         () => "someId"
@@ -178,7 +178,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         {
           ...database,
-          findNextTest: time => (time === now ? skeletalTest : undefined)
+          findNextTest: time => (time === now ? skeletalTest : undefined),
         },
         () => now,
         () => "someId"
@@ -213,7 +213,7 @@ describe("domainLogic", () => {
       solution: "solution",
       state: "New",
       changeTime: subSeconds(now, passedTime),
-      nextTime: subSeconds(now, 100)
+      nextTime: subSeconds(now, 100),
     });
 
     function getTest(id: string) {
@@ -225,7 +225,7 @@ describe("domainLogic", () => {
         id: test.id,
         state: "Ok",
         changeTime: now,
-        nextTime: addSeconds(now, passedTime * 2)
+        nextTime: addSeconds(now, passedTime * 2),
       };
       const logic = domainLogic(
         {
@@ -234,7 +234,7 @@ describe("domainLogic", () => {
           updateTest: u => {
             assert.deepStrictEqual(u, update);
             return undefined;
-          }
+          },
         },
         () => now,
         () => "someId"
@@ -248,7 +248,7 @@ describe("domainLogic", () => {
         id: test.id,
         state: "Failed",
         changeTime: now,
-        nextTime: addSeconds(now, Math.floor(passedTime / 2))
+        nextTime: addSeconds(now, Math.floor(passedTime / 2)),
       };
       const logic = domainLogic(
         {
@@ -257,7 +257,7 @@ describe("domainLogic", () => {
           updateTest: u => {
             assert.deepStrictEqual(u, update);
             return undefined;
-          }
+          },
         },
         () => now,
         () => "someId"
@@ -273,7 +273,7 @@ describe("domainLogic", () => {
       getTest: id => undefined,
       updateTest: update => {
         throw new Error("updateTest should not be called");
-      }
+      },
     });
 
     it("setOk should throw error when id not found", () => {
@@ -284,8 +284,10 @@ describe("domainLogic", () => {
       );
 
       assert.throws(
-        () => logic.setOk({ id: nonExistingId }),
-        (err: any) =>
+        () => {
+          logic.setOk({ id: nonExistingId });
+        },
+        (err: unknown) =>
           err instanceof Error && err.message.includes(nonExistingId)
       );
     });
@@ -298,8 +300,10 @@ describe("domainLogic", () => {
       );
 
       assert.throws(
-        () => logic.setFailed({ id: nonExistingId }),
-        (err: any) =>
+        () => {
+          logic.setFailed({ id: nonExistingId });
+        },
+        (err: unknown) =>
           err instanceof Error && err.message.includes(nonExistingId)
       );
     });

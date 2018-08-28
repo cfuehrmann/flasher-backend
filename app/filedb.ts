@@ -8,12 +8,12 @@ export const createFileDb = (fileName: string) => {
 
   function connect(): DataBase {
     const json = fs.readFileSync(fileName).toString();
-    const data = JSON.parse(json, reviver) as Test[]; // todo: runtime check if the type assertion is correct?
+    const data = JSON.parse(json, reviver) as Test[]; // Todo: runtime check if the type assertion is correct?
 
     return {
       createTest(test) {
-        const [result] = data.filter(t => t.id === test.id);
-        if (result) {
+        const testsWithSameId = data.filter(t => t.id === test.id);
+        if (testsWithSameId.length > 0) {
           throw new Error("Key already exists!");
         }
         data.push({ ...test });
@@ -21,9 +21,9 @@ export const createFileDb = (fileName: string) => {
       },
 
       getTest(id) {
-        const [result] = data.filter(test => test.id === id);
-        if (result !== undefined) {
-          return { ...result };
+        const hits = data.filter(test => test.id === id);
+        if (hits.length > 0) {
+          return { ...hits[0] };
         }
       },
 
@@ -72,7 +72,7 @@ export const createFileDb = (fileName: string) => {
             (test1, test2) =>
               test1.nextTime.getTime() - test2.nextTime.getTime()
           )[0];
-      }
+      },
     };
   }
 
@@ -80,15 +80,13 @@ export const createFileDb = (fileName: string) => {
     writeJsonToFile([]);
   }
 
-  function writeJsonToFile(data: any) {
-    fs.writeFileSync(fileName, JSON.stringify(data, null, 4));
+  function writeJsonToFile(data: unknown) {
+    fs.writeFileSync(fileName, JSON.stringify(data, undefined, 4));
   }
 
-  function reviver(key: any, value: string) {
-    return isDateString(value) ? new Date(value) : value;
-  }
-
-  function isDateString(value: string) {
-    return typeof value === "string" && dateFormat.test(value);
+  function reviver(key: unknown, value: unknown) {
+    return typeof value === "string" && dateFormat.test(value)
+      ? new Date(value)
+      : value;
   }
 };

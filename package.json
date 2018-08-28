@@ -11,7 +11,8 @@
     "watch-build": "tsc -w",
     "test": "mocha --recursive ./dist/test/*.js",
     "watch-test": "mocha --watch --recursive ./dist/test/*.js",
-    "tslint": "tslint app/*.ts test/*.ts -t verbose"
+    "lint": "tslint app/*.ts test/*.ts  -p \"tsconfig.json\" -t verbose",
+    "watch-lint": "chokidar app/*.ts test/*.ts -c \"npm run lint\" --initial --verbose"
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +28,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "chokidar-cli": "^1.2.0",
     "mocha": "^5.2.0",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",

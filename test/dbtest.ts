@@ -8,7 +8,7 @@ const test0 = Object.freeze<Test>({
   solution: "solutionA0",
   state: "New",
   changeTime: new Date("2018-01-01T18:25:24.000"),
-  nextTime: new Date("2018-02-01T18:25:24.000")
+  nextTime: new Date("2018-02-01T18:25:24.000"),
 });
 
 const test1 = Object.freeze<Test>({
@@ -17,7 +17,7 @@ const test1 = Object.freeze<Test>({
   solution: "solutionB1",
   state: "Ok",
   changeTime: new Date("2018-01-01T18:25:24.001"),
-  nextTime: new Date("2018-02-01T18:25:24.001")
+  nextTime: new Date("2018-02-01T18:25:24.001"),
 });
 
 const test2 = Object.freeze<Test>({
@@ -26,7 +26,7 @@ const test2 = Object.freeze<Test>({
   solution: "solutionB2",
   state: "Failed",
   changeTime: new Date("2018-01-01T18:25:24.002"),
-  nextTime: new Date("2018-02-01T18:25:24.002")
+  nextTime: new Date("2018-02-01T18:25:24.002"),
 });
 
 const test1Changed = Object.freeze<Test>({
@@ -35,7 +35,7 @@ const test1Changed = Object.freeze<Test>({
   solution: test1.solution + "_changed",
   state: "Failed",
   changeTime: new Date("2018-01-01T18:25:24.003"),
-  nextTime: new Date("2018-02-01T18:25:24.003")
+  nextTime: new Date("2018-02-01T18:25:24.003"),
 });
 
 let db: DataBase;
@@ -71,8 +71,10 @@ describe("database", () => {
     it("should prevent duplicate keys", () => {
       db.createTest(test0);
       assert.throws(
-        () => db.createTest({ ...test1, id: test0.id }),
-        (err: any) =>
+        () => {
+          db.createTest({ ...test1, id: test0.id });
+        },
+        (err: unknown) =>
           err instanceof Error && err.message.toLowerCase().includes("key")
       );
     });
@@ -116,7 +118,7 @@ describe("database", () => {
       const result = db.findTests("romptA");
 
       const lookup: { [key: string]: Test } = {};
-      
+
       for (const record of result) {
         lookup[record.id] = record;
       }
@@ -195,31 +197,31 @@ describe("database", () => {
       assert.notStrictEqual(result1, result2);
     });
 
-    // todo: what if e.g. test from createTest is changed?
+    // Todo: what if e.g. test from createTest is changed?
   });
 
   describe("findNextTest", () => {
     const nextTest = Object.freeze({
       ...test0,
-      nextTime: new Date("2018-01-01T18:25:24.000")
+      nextTime: new Date("2018-01-01T18:25:24.000"),
     });
 
     beforeEach(() => {
       db.createTest({
         ...test0,
         id: "1",
-        nextTime: new Date("2018-01-01T18:25:24.001")
+        nextTime: new Date("2018-01-01T18:25:24.001"),
       });
       db.createTest(nextTest);
       db.createTest({
         ...test0,
         id: "2",
-        nextTime: new Date("2018-01-01T18:25:24.002")
+        nextTime: new Date("2018-01-01T18:25:24.002"),
       });
       db.createTest({
         ...test0,
         id: "3",
-        nextTime: new Date("2018-01-01T18:25:24.003")
+        nextTime: new Date("2018-01-01T18:25:24.003"),
       });
     });
 
