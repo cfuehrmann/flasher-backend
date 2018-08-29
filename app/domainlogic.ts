@@ -4,7 +4,7 @@ import { DataBase, State } from "./types";
 export const domainLogic = (
   database: DataBase,
   getTime: () => Date,
-  createUuid: () => string
+  createUuid: () => string,
 ) => {
   return {
     createTest({ prompt, solution }: { prompt: string; solution: string }) {

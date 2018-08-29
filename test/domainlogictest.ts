@@ -46,7 +46,7 @@ describe("domainLogic", () => {
           },
         },
         () => now,
-        () => uuid
+        () => uuid,
       );
 
       // Act/Assert
@@ -62,7 +62,7 @@ describe("domainLogic", () => {
           getTest: id => (id === "42" ? skeletalTest : undefined),
         },
         () => new Date(),
-        () => "someId"
+        () => "someId",
       );
 
       const result = logic.test({ id: "42" });
@@ -74,7 +74,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         { ...database, getTest: () => undefined },
         () => new Date(),
-        () => "someId"
+        () => "someId",
       );
 
       const result = logic.test({ id: "42" });
@@ -93,7 +93,7 @@ describe("domainLogic", () => {
           findTests: substring => (substring === "ohn smit" ? dbResult : []),
         },
         () => new Date(),
-        () => "someId"
+        () => "someId",
       );
 
       const result = logic.tests({ substring: "ohn smit" });
@@ -125,7 +125,7 @@ describe("domainLogic", () => {
           },
         },
         () => new Date(),
-        () => "someId"
+        () => "someId",
       );
 
       // Act/Assert
@@ -161,7 +161,7 @@ describe("domainLogic", () => {
           },
         },
         () => now,
-        () => "someId"
+        () => "someId",
       );
 
       // Act/Assert
@@ -181,7 +181,7 @@ describe("domainLogic", () => {
           findNextTest: time => (time === now ? skeletalTest : undefined),
         },
         () => now,
-        () => "someId"
+        () => "someId",
       );
 
       const result = logic.findNextTest();
@@ -194,7 +194,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         { ...database, findNextTest: () => undefined },
         () => now,
-        () => "someId"
+        () => "someId",
       );
 
       const result = logic.findNextTest();
@@ -237,7 +237,7 @@ describe("domainLogic", () => {
           },
         },
         () => now,
-        () => "someId"
+        () => "someId",
       );
 
       logic.setOk({ id: test.id });
@@ -260,7 +260,7 @@ describe("domainLogic", () => {
           },
         },
         () => now,
-        () => "someId"
+        () => "someId",
       );
 
       logic.setFailed({ id: test.id });
@@ -280,7 +280,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         { ...database, ...emptyDb },
         () => now,
-        () => "someId"
+        () => "someId",
       );
 
       assert.throws(
@@ -288,7 +288,7 @@ describe("domainLogic", () => {
           logic.setOk({ id: nonExistingId });
         },
         (err: unknown) =>
-          err instanceof Error && err.message.includes(nonExistingId)
+          err instanceof Error && err.message.includes(nonExistingId),
       );
     });
 
@@ -296,7 +296,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         { ...database, ...emptyDb },
         () => now,
-        () => "someId"
+        () => "someId",
       );
 
       assert.throws(
@@ -304,7 +304,7 @@ describe("domainLogic", () => {
           logic.setFailed({ id: nonExistingId });
         },
         (err: unknown) =>
-          err instanceof Error && err.message.includes(nonExistingId)
+          err instanceof Error && err.message.includes(nonExistingId),
       );
     });
   });

@@ -1,6 +1,3 @@
 {
-    "eslint.enable": true,
-    "cSpell.words": [
-        "Updatables"
-    ]
+  "cSpell.words": ["Updatables"]
 }

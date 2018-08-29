@@ -13,7 +13,7 @@ app.use(
     schema,
     rootValue: getRoot(),
     graphiql: true,
-  })
+  }),
 );
 
 app.listen(4000, () => {

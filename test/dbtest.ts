@@ -75,7 +75,7 @@ describe("database", () => {
           db.createTest({ ...test1, id: test0.id });
         },
         (err: unknown) =>
-          err instanceof Error && err.message.toLowerCase().includes("key")
+          err instanceof Error && err.message.toLowerCase().includes("key"),
       );
     });
   });

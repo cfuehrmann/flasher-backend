@@ -12,7 +12,8 @@
     "test": "mocha --recursive ./dist/test/*.js",
     "watch-test": "mocha --watch --recursive ./dist/test/*.js",
     "lint": "tslint app/*.ts test/*.ts  -p \"tsconfig.json\" -t verbose",
-    "watch-lint": "chokidar app/*.ts test/*.ts -c \"npm run lint\" --initial --verbose"
+    "watch-lint": "chokidar app/*.ts test/*.ts -c \"npm run lint\" --initial --verbose",
+    "prettier": "prettier --write {app,test}/**/*.ts *.json"
   },
   "author": "",
   "license": "ISC",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "chokidar-cli": "^1.2.0",
     "mocha": "^5.2.0",
+    "prettier": "^1.14.2",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.0.1"

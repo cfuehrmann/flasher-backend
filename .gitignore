@@ -4,3 +4,4 @@ dist/
 
 testdb.json
 productiondb.json
+*.code-workspace

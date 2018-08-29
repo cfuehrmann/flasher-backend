@@ -32,7 +32,7 @@ export const createFileDb = (fileName: string) => {
           .filter(
             test =>
               test.prompt.includes(substring) ||
-              test.solution.includes(substring)
+              test.solution.includes(substring),
           )
           .map(test => ({ ...test }));
       },
@@ -70,7 +70,7 @@ export const createFileDb = (fileName: string) => {
           .filter(test => test.nextTime <= time)
           .sort(
             (test1, test2) =>
-              test1.nextTime.getTime() - test2.nextTime.getTime()
+              test1.nextTime.getTime() - test2.nextTime.getTime(),
           )[0];
       },
     };
