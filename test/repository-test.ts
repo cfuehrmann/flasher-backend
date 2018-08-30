@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { Repository, Test } from "../app/types";
-import { repositoryTools } from "./testconfig";
+import { repositoryTools } from "./test-config";
 
 const test0 = Object.freeze<Test>({
   id: "0",

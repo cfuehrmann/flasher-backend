@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { addMinutes, addSeconds, subSeconds } from "date-fns";
-import { domainLogic } from "../app/domainlogic";
+import { domainLogic } from "../app/domain-logic";
 import { Repository, Test, TestUpdate } from "../app/types";
 
 describe("domainLogic", () => {

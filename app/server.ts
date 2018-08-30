@@ -1,8 +1,8 @@
 import * as express from "express";
 import * as expressGraphQL from "express-graphql";
-import { v4 as uuidv4 } from "uuid";
-import { domainLogic } from "./domainlogic";
-import { repositoryTools } from "./productionconfig";
+import { v4 as uuidV4 } from "uuid";
+import { domainLogic } from "./domain-logic";
+import { repositoryTools } from "./production-config";
 import { schema } from "./schema";
 
 const app = express();
@@ -22,5 +22,5 @@ app.listen(4000, () => {
 
 function getRoot() {
   const repository = repositoryTools.connect();
-  return domainLogic(repository, () => new Date(), uuidv4);
+  return domainLogic(repository, () => new Date(), uuidV4);
 }
