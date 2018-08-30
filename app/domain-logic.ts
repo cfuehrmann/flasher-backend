@@ -55,7 +55,7 @@ export const domainLogic = (
       return repository.updateTest({
         id: id,
         prompt: prompt,
-        solution: prompt,
+        solution: solution,
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 30),
