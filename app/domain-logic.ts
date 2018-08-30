@@ -65,31 +65,21 @@ export const domainLogic = (
     findNextTest: () => repository.findNextTest(getTime()),
 
     setOk: ({ id }: { id: string }) => {
-      setResult({
-        id: id,
-        state: "Ok",
-        getTimeToWait: (passedTime: number) => passedTime * 2,
-      });
+      setResult(id, "Ok", (passedTime: number) => passedTime * 2);
     },
 
     setFailed: ({ id }: { id: string }) => {
-      setResult({
-        id: id,
-        state: "Failed",
-        getTimeToWait: (passedTime: number) => Math.floor(passedTime / 2),
-      });
+      setResult(id, "Failed", (passedTime: number) =>
+        Math.floor(passedTime / 2),
+      );
     },
   };
 
-  function setResult({
-    id,
-    state,
-    getTimeToWait,
-  }: {
-    id: string;
-    state: State;
-    getTimeToWait: (passedTime: number) => number;
-  }) {
+  function setResult(
+    id: string,
+    state: State,
+    getTimeToWait: (passedTime: number) => number,
+  ) {
     const test = repository.getTest(id);
 
     if (test === undefined) {
