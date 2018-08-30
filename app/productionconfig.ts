@@ -1,4 +1,6 @@
-import { createFileDb } from "./filedb";
+import { createFileRepositoryTools } from "./file-repository-tools";
 
-// Configuration of the database to avoid the "constrained construction" antipattern
-export const db = createFileDb(__dirname + "/productiondb.json");
+// Configuration of the repository to avoid the "constrained construction" antipattern
+export const repositoryTools = createFileRepositoryTools(
+  __dirname + "/production-file-repository.json",
+);

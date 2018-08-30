@@ -1,8 +1,8 @@
 import { addMinutes, addSeconds, differenceInSeconds } from "date-fns";
-import { DataBase, State } from "./types";
+import { Repository, State } from "./types";
 
 export const domainLogic = (
-  database: DataBase,
+  repository: Repository,
   getTime: () => Date,
   createUuid: () => string,
 ) => {
@@ -10,7 +10,7 @@ export const domainLogic = (
     createTest({ prompt, solution }: { prompt: string; solution: string }) {
       const now = getTime();
 
-      database.createTest({
+      repository.createTest({
         id: createUuid(),
         prompt,
         solution,
@@ -21,11 +21,11 @@ export const domainLogic = (
     },
 
     test({ id }: { id: string }) {
-      return database.getTest(id);
+      return repository.getTest(id);
     },
 
     tests({ substring }: { substring: string }) {
-      return database.findTests(substring);
+      return repository.findTests(substring);
     },
 
     updateTest({
@@ -40,12 +40,12 @@ export const domainLogic = (
       isMinor: boolean;
     }) {
       if (isMinor) {
-        return database.updateTest({ id, prompt, solution });
+        return repository.updateTest({ id, prompt, solution });
       }
 
       const now = getTime();
 
-      return database.updateTest({
+      return repository.updateTest({
         id,
         prompt,
         solution,
@@ -56,7 +56,7 @@ export const domainLogic = (
     },
 
     findNextTest() {
-      return database.findNextTest(getTime());
+      return repository.findNextTest(getTime());
     },
 
     setOk({ id }: { id: string }) {
@@ -85,7 +85,7 @@ export const domainLogic = (
     state: State;
     getTimeToWait: (passedTime: number) => number;
   }) {
-    const test = database.getTest(id);
+    const test = repository.getTest(id);
 
     if (test === undefined) {
       throw new Error(`Test with id '${id}' not found!`);
@@ -95,7 +95,7 @@ export const domainLogic = (
 
     const passedTime = differenceInSeconds(now, test.changeTime);
 
-    database.updateTest({
+    repository.updateTest({
       id,
       state,
       changeTime: now,

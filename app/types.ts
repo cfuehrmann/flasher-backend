@@ -1,4 +1,4 @@
-export type DataBase = {
+export type Repository = {
   createTest(test: Readonly<Test>): void;
   getTest(id: string): Test | undefined;
   findTests(substring: string): Test[];

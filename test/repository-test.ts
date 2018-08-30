@@ -1,6 +1,6 @@
 import * as assert from "assert";
-import { DataBase, Test } from "../app/types";
-import { dbConnector } from "./testconfig";
+import { Repository, Test } from "../app/types";
+import { repositoryTools } from "./testconfig";
 
 const test0 = Object.freeze<Test>({
   id: "0",
@@ -38,41 +38,41 @@ const test1Changed = Object.freeze<Test>({
   nextTime: new Date("2018-02-01T18:25:24.003"),
 });
 
-let db: DataBase;
+let repository: Repository;
 
 beforeEach(() => {
-  dbConnector.createEmptyDb();
-  db = dbConnector.connect();
+  repositoryTools.createEmptyRepository();
+  repository = repositoryTools.connect();
 });
 
-describe("database", () => {
+describe("repository", () => {
   describe("createTest", () => {
     it("should create tests that can be retrieved", () => {
-      db.createTest(test0);
-      db.createTest(test1);
-      const foundTest0 = db.getTest("0");
-      const foundTest1 = db.getTest("1");
+      repository.createTest(test0);
+      repository.createTest(test1);
+      const foundTest0 = repository.getTest("0");
+      const foundTest1 = repository.getTest("1");
 
       assert.deepStrictEqual(foundTest0, test0);
       assert.deepStrictEqual(foundTest1, test1);
     });
 
     it("should create tests that can be retrieved through new connection", () => {
-      db.createTest(test0);
-      db.createTest(test1);
-      const newDb = dbConnector.connect();
-      const foundTest0 = newDb.getTest("0");
-      const foundTest1 = newDb.getTest("1");
+      repository.createTest(test0);
+      repository.createTest(test1);
+      const newRepository = repositoryTools.connect();
+      const foundTest0 = newRepository.getTest("0");
+      const foundTest1 = newRepository.getTest("1");
 
       assert.deepStrictEqual(foundTest0, test0);
       assert.deepStrictEqual(foundTest1, test1);
     });
 
     it("should prevent duplicate keys", () => {
-      db.createTest(test0);
+      repository.createTest(test0);
       assert.throws(
         () => {
-          db.createTest({ ...test1, id: test0.id });
+          repository.createTest({ ...test1, id: test0.id });
         },
         (err: unknown) =>
           err instanceof Error && err.message.toLowerCase().includes("key"),
@@ -82,26 +82,26 @@ describe("database", () => {
 
   describe("getTest", () => {
     beforeEach(() => {
-      db.createTest(test0);
-      db.createTest(test1);
-      db.createTest(test2);
+      repository.createTest(test0);
+      repository.createTest(test1);
+      repository.createTest(test2);
     });
 
     it("should return correct data when id found", () => {
-      const result = db.getTest(test1.id);
+      const result = repository.getTest(test1.id);
 
       assert.deepStrictEqual(result, test1);
     });
 
     it("should return undefined when id not found", () => {
-      const result = db.getTest("999");
+      const result = repository.getTest("999");
 
       assert.strictEqual(result, undefined);
     });
 
     it("should return copies", () => {
-      const result1 = db.getTest(test1.id);
-      const result2 = db.getTest(test1.id);
+      const result1 = repository.getTest(test1.id);
+      const result2 = repository.getTest(test1.id);
 
       assert.notStrictEqual(result1, result2);
     });
@@ -109,13 +109,13 @@ describe("database", () => {
 
   describe("findTests", () => {
     beforeEach(() => {
-      db.createTest(test0);
-      db.createTest(test1);
-      db.createTest(test2);
+      repository.createTest(test0);
+      repository.createTest(test1);
+      repository.createTest(test2);
     });
 
     it("should return tests whose prompts contain substring", () => {
-      const result = db.findTests("romptA");
+      const result = repository.findTests("romptA");
 
       const lookup: { [key: string]: Test } = {};
 
@@ -129,7 +129,7 @@ describe("database", () => {
     });
 
     it("should return tests whose solution contain substring", () => {
-      const result = db.findTests("tionB");
+      const result = repository.findTests("tionB");
 
       const lookup: { [key: string]: Test } = {};
 
@@ -143,8 +143,8 @@ describe("database", () => {
     });
 
     it("should return copies", () => {
-      const result1 = db.findTests("promptB");
-      const result2 = db.findTests("promptB");
+      const result1 = repository.findTests("promptB");
+      const result2 = repository.findTests("promptB");
 
       assert.notStrictEqual(result1[0], result2[0]);
     });
@@ -152,47 +152,47 @@ describe("database", () => {
 
   describe("updateTest", () => {
     beforeEach(() => {
-      db.createTest(test0);
-      db.createTest(test1);
-      db.createTest(test2);
+      repository.createTest(test0);
+      repository.createTest(test1);
+      repository.createTest(test2);
     });
 
-    it("should change the database", () => {
-      db.updateTest(test1Changed);
-      const foundTest = db.getTest(test1Changed.id);
+    it("should change the repository", () => {
+      repository.updateTest(test1Changed);
+      const foundTest = repository.getTest(test1Changed.id);
 
       assert.deepStrictEqual(foundTest, test1Changed);
     });
 
-    it("should change the database persistently", () => {
-      db.updateTest(test1Changed);
-      const newDb = dbConnector.connect();
-      const foundTest = newDb.getTest(test1Changed.id);
+    it("should change the repository persistently", () => {
+      repository.updateTest(test1Changed);
+      const newRepository = repositoryTools.connect();
+      const foundTest = newRepository.getTest(test1Changed.id);
 
       assert.deepStrictEqual(foundTest, test1Changed);
     });
 
     it("should return changed data when id found", () => {
-      const result = db.updateTest(test1Changed);
+      const result = repository.updateTest(test1Changed);
 
       assert.deepStrictEqual(result, test1Changed);
     });
 
     it("should return undefined when id not found", () => {
-      const result = db.updateTest({ ...test1Changed, id: "999" });
+      const result = repository.updateTest({ ...test1Changed, id: "999" });
 
       assert.strictEqual(result, undefined);
     });
 
     it("should not update when value undefined", () => {
-      const result = db.updateTest({ id: "1" });
+      const result = repository.updateTest({ id: "1" });
 
       assert.deepStrictEqual(result, test1);
     });
 
     it("should return copies", () => {
-      const result1 = db.updateTest(test1Changed);
-      const result2 = db.updateTest(test1Changed);
+      const result1 = repository.updateTest(test1Changed);
+      const result2 = repository.updateTest(test1Changed);
 
       assert.notStrictEqual(result1, result2);
     });
@@ -207,18 +207,18 @@ describe("database", () => {
     });
 
     beforeEach(() => {
-      db.createTest({
+      repository.createTest({
         ...test0,
         id: "1",
         nextTime: new Date("2018-01-01T18:25:24.001"),
       });
-      db.createTest(nextTest);
-      db.createTest({
+      repository.createTest(nextTest);
+      repository.createTest({
         ...test0,
         id: "2",
         nextTime: new Date("2018-01-01T18:25:24.002"),
       });
-      db.createTest({
+      repository.createTest({
         ...test0,
         id: "3",
         nextTime: new Date("2018-01-01T18:25:24.003"),
@@ -226,19 +226,25 @@ describe("database", () => {
     });
 
     it("should return next test when found", () => {
-      const result = db.findNextTest(new Date("2018-01-01T18:25:24.002"));
+      const result = repository.findNextTest(
+        new Date("2018-01-01T18:25:24.002"),
+      );
 
       assert.deepStrictEqual(result, nextTest);
     });
 
     it("should return next test when just found", () => {
-      const result = db.findNextTest(new Date("2018-01-01T18:25:24.000"));
+      const result = repository.findNextTest(
+        new Date("2018-01-01T18:25:24.000"),
+      );
 
       assert.deepStrictEqual(result, nextTest);
     });
 
     it("should return undefined when just missed", () => {
-      const result = db.findNextTest(new Date("2018-01-01T18:25:23.999"));
+      const result = repository.findNextTest(
+        new Date("2018-01-01T18:25:23.999"),
+      );
 
       assert.strictEqual(result, undefined);
     });

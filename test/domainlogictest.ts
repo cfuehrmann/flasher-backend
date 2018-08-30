@@ -1,10 +1,10 @@
 import * as assert from "assert";
 import { addMinutes, addSeconds, subSeconds } from "date-fns";
 import { domainLogic } from "../app/domainlogic";
-import { DataBase, Test, TestUpdate } from "../app/types";
+import { Repository, Test, TestUpdate } from "../app/types";
 
 describe("domainLogic", () => {
-  const database = Object.freeze<DataBase>({
+  const repository = Object.freeze<Repository>({
     createTest: test => undefined,
     getTest: id => undefined,
     findTests: substring => [],
@@ -22,19 +22,19 @@ describe("domainLogic", () => {
   });
 
   it("creation should not crash", () => {
-    domainLogic(database, () => new Date(), () => "someId");
+    domainLogic(repository, () => new Date(), () => "someId");
   });
 
   describe("createTest", () => {
-    it("should create database record with all fields initialized properly", () => {
+    it("should create repository record with all fields initialized properly", () => {
       // Arrange
       const now = new Date("2018-07-21T01:02:04.567");
       const uuid = "d9f77655-c17e-43a5-a7be-997a01d65c37";
       const arg = { prompt: "prompt", solution: "solution" };
       const logic = domainLogic(
         {
-          ...database,
-          createTest: (dbArg: Test) => {
+          ...repository,
+          createTest: (repositoryArg: Test) => {
             const expected: Test = {
               id: uuid,
               ...arg,
@@ -42,7 +42,7 @@ describe("domainLogic", () => {
               changeTime: now,
               nextTime: addMinutes(now, 10),
             };
-            assert.deepStrictEqual(dbArg, expected);
+            assert.deepStrictEqual(repositoryArg, expected);
           },
         },
         () => now,
@@ -55,10 +55,10 @@ describe("domainLogic", () => {
   });
 
   describe("test", () => {
-    it("should return database result when found", () => {
+    it("should return repository result when found", () => {
       const logic = domainLogic(
         {
-          ...database,
+          ...repository,
           getTest: id => (id === "42" ? skeletalTest : undefined),
         },
         () => new Date(),
@@ -72,7 +72,7 @@ describe("domainLogic", () => {
 
     it("should return undefined when not found", () => {
       const logic = domainLogic(
-        { ...database, getTest: () => undefined },
+        { ...repository, getTest: () => undefined },
         () => new Date(),
         () => "someId",
       );
@@ -84,13 +84,14 @@ describe("domainLogic", () => {
   });
 
   describe("tests", () => {
-    it("should return database result", () => {
-      const dbResult = [skeletalTest];
+    it("should return repository result", () => {
+      const repositoryResult = [skeletalTest];
 
       const logic = domainLogic(
         {
-          ...database,
-          findTests: substring => (substring === "ohn smit" ? dbResult : []),
+          ...repository,
+          findTests: substring =>
+            substring === "ohn smit" ? repositoryResult : [],
         },
         () => new Date(),
         () => "someId",
@@ -98,7 +99,7 @@ describe("domainLogic", () => {
 
       const result = logic.tests({ substring: "ohn smit" });
 
-      assert.strictEqual(result, dbResult);
+      assert.strictEqual(result, repositoryResult);
     });
   });
 
@@ -118,9 +119,9 @@ describe("domainLogic", () => {
       };
       const logic = domainLogic(
         {
-          ...database,
-          updateTest: dbArgs => {
-            assert.deepStrictEqual(dbArgs, expectedArgs);
+          ...repository,
+          updateTest: repositoryArgs => {
+            assert.deepStrictEqual(repositoryArgs, expectedArgs);
             return skeletalTest;
           },
         },
@@ -146,8 +147,8 @@ describe("domainLogic", () => {
       const now = new Date();
       const logic = domainLogic(
         {
-          ...database,
-          updateTest: dbArgs => {
+          ...repository,
+          updateTest: repositoryArgs => {
             const expected: TestUpdate = {
               id: args.id,
               prompt: args.prompt,
@@ -156,7 +157,7 @@ describe("domainLogic", () => {
               changeTime: now,
               nextTime: addMinutes(now, 30),
             };
-            assert.deepStrictEqual(dbArgs, expected);
+            assert.deepStrictEqual(repositoryArgs, expected);
             return skeletalTest;
           },
         },
@@ -173,11 +174,11 @@ describe("domainLogic", () => {
   });
 
   describe("findNextTest", () => {
-    it("should return database result when found", () => {
+    it("should return repository result when found", () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
       const logic = domainLogic(
         {
-          ...database,
+          ...repository,
           findNextTest: time => (time === now ? skeletalTest : undefined),
         },
         () => now,
@@ -192,7 +193,7 @@ describe("domainLogic", () => {
     it("should return undefined when not found", () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
       const logic = domainLogic(
-        { ...database, findNextTest: () => undefined },
+        { ...repository, findNextTest: () => undefined },
         () => now,
         () => "someId",
       );
@@ -229,7 +230,7 @@ describe("domainLogic", () => {
       };
       const logic = domainLogic(
         {
-          ...database,
+          ...repository,
           getTest,
           updateTest: u => {
             assert.deepStrictEqual(u, update);
@@ -252,7 +253,7 @@ describe("domainLogic", () => {
       };
       const logic = domainLogic(
         {
-          ...database,
+          ...repository,
           getTest,
           updateTest: u => {
             assert.deepStrictEqual(u, update);
@@ -268,8 +269,8 @@ describe("domainLogic", () => {
 
     const nonExistingId = "nonExistingId";
 
-    const emptyDb = Object.freeze<DataBase>({
-      ...database,
+    const emptyRepository = Object.freeze<Repository>({
+      ...repository,
       getTest: id => undefined,
       updateTest: update => {
         throw new Error("updateTest should not be called");
@@ -278,7 +279,7 @@ describe("domainLogic", () => {
 
     it("setOk should throw error when id not found", () => {
       const logic = domainLogic(
-        { ...database, ...emptyDb },
+        { ...repository, ...emptyRepository },
         () => now,
         () => "someId",
       );
@@ -294,7 +295,7 @@ describe("domainLogic", () => {
 
     it("setFailed should throw error when id not found", () => {
       const logic = domainLogic(
-        { ...database, ...emptyDb },
+        { ...repository, ...emptyRepository },
         () => now,
         () => "someId",
       );

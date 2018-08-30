@@ -1,12 +1,12 @@
 import * as fs from "fs";
-import { DataBase, Test } from "./types";
+import { Repository, Test } from "./types";
 
-export const createFileDb = (fileName: string) => {
+export const createFileRepositoryTools = (fileName: string) => {
   const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 
-  return { connect, createEmptyDb };
+  return { connect, createEmptyRepository };
 
-  function connect(): DataBase {
+  function connect(): Repository {
     const json = fs.readFileSync(fileName).toString();
     const data = JSON.parse(json, reviver) as Test[]; // Todo: runtime check if the type assertion is correct?
 
@@ -76,7 +76,7 @@ export const createFileDb = (fileName: string) => {
     };
   }
 
-  function createEmptyDb() {
+  function createEmptyRepository() {
     writeJsonToFile([]);
   }
 

@@ -14,6 +14,7 @@
         "object-destructuring"
       ]
     },
+    "file-name-casing": [true, "kebab-case"],
     "no-magic-numbers": false,
     "newline-before-return": false,
     "only-arrow-functions": false,
