@@ -7,28 +7,31 @@ export const domainLogic = (
   createUuid: () => string,
 ) => {
   return {
-    createTest({ prompt, solution }: { prompt: string; solution: string }) {
+    createTest: ({
+      prompt,
+      solution,
+    }: {
+      prompt: string;
+      solution: string;
+    }) => {
       const now = getTime();
 
       repository.createTest({
         id: createUuid(),
-        prompt,
-        solution,
+        prompt: prompt,
+        solution: solution,
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 10),
       });
     },
 
-    test({ id }: { id: string }) {
-      return repository.getTest(id);
-    },
+    test: ({ id }: { id: string }) => repository.getTest(id),
 
-    tests({ substring }: { substring: string }) {
-      return repository.findTests(substring);
-    },
+    tests: ({ substring }: { substring: string }) =>
+      repository.findTests(substring),
 
-    updateTest({
+    updateTest: ({
       id,
       prompt,
       solution,
@@ -38,38 +41,40 @@ export const domainLogic = (
       prompt: string;
       solution: string;
       isMinor: boolean;
-    }) {
+    }) => {
       if (isMinor) {
-        return repository.updateTest({ id, prompt, solution });
+        return repository.updateTest({
+          id: id,
+          prompt: prompt,
+          solution: solution,
+        });
       }
 
       const now = getTime();
 
       return repository.updateTest({
-        id,
-        prompt,
-        solution,
+        id: id,
+        prompt: prompt,
+        solution: prompt,
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 30),
       });
     },
 
-    findNextTest() {
-      return repository.findNextTest(getTime());
-    },
+    findNextTest: () => repository.findNextTest(getTime()),
 
-    setOk({ id }: { id: string }) {
+    setOk: ({ id }: { id: string }) => {
       setResult({
-        id,
+        id: id,
         state: "Ok",
         getTimeToWait: (passedTime: number) => passedTime * 2,
       });
     },
 
-    setFailed({ id }: { id: string }) {
+    setFailed: ({ id }: { id: string }) => {
       setResult({
-        id,
+        id: id,
         state: "Failed",
         getTimeToWait: (passedTime: number) => Math.floor(passedTime / 2),
       });
@@ -96,8 +101,8 @@ export const domainLogic = (
     const passedTime = differenceInSeconds(now, test.changeTime);
 
     repository.updateTest({
-      id,
-      state,
+      id: id,
+      state: state,
       changeTime: now,
       nextTime: addSeconds(now, getTimeToWait(passedTime)),
     });

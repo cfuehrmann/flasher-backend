@@ -4,14 +4,14 @@ import { Repository, Test } from "./types";
 export const createFileRepositoryTools = (fileName: string) => {
   const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 
-  return { connect, createEmptyRepository };
+  return { connect: connect, createEmptyRepository: createEmptyRepository };
 
   function connect(): Repository {
     const json = fs.readFileSync(fileName).toString();
     const data = JSON.parse(json, reviver) as Test[]; // Todo: runtime check if the type assertion is correct?
 
     return {
-      createTest(test) {
+      createTest: test => {
         const testsWithSameId = data.filter(t => t.id === test.id);
         if (testsWithSameId.length > 0) {
           throw new Error("Key already exists!");
@@ -20,24 +20,23 @@ export const createFileRepositoryTools = (fileName: string) => {
         writeJsonToFile(data);
       },
 
-      getTest(id) {
+      getTest: id => {
         const hits = data.filter(test => test.id === id);
         if (hits.length > 0) {
           return { ...hits[0] };
         }
       },
 
-      findTests(substring) {
-        return data
+      findTests: substring =>
+        data
           .filter(
             test =>
               test.prompt.includes(substring) ||
               test.solution.includes(substring),
           )
-          .map(test => ({ ...test }));
-      },
+          .map(test => ({ ...test })),
 
-      updateTest({ id, prompt, solution, state, changeTime, nextTime }) {
+      updateTest: ({ id, prompt, solution, state, changeTime, nextTime }) => {
         for (const test of data) {
           if (test.id !== id) {
             continue;
@@ -65,14 +64,13 @@ export const createFileRepositoryTools = (fileName: string) => {
         }
       },
 
-      findNextTest(time) {
-        return data
+      findNextTest: time =>
+        data
           .filter(test => test.nextTime <= time)
           .sort(
             (test1, test2) =>
               test1.nextTime.getTime() - test2.nextTime.getTime(),
-          )[0];
-      },
+          )[0],
     };
   }
 

@@ -231,7 +231,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         {
           ...repository,
-          getTest,
+          getTest: getTest,
           updateTest: u => {
             assert.deepStrictEqual(u, update);
             return undefined;
@@ -254,7 +254,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         {
           ...repository,
-          getTest,
+          getTest: getTest,
           updateTest: u => {
             assert.deepStrictEqual(u, update);
             return undefined;

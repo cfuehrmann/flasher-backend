@@ -10,7 +10,7 @@ const app = express();
 app.use(
   "/graphql",
   expressGraphQL({
-    schema,
+    schema: schema,
     rootValue: getRoot(),
     graphiql: true,
   }),
