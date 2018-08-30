@@ -52,6 +52,9 @@ describe("domainLogic", () => {
       // Act/Assert
       logic.createTest(arg);
     });
+
+    // Todo: test the duplicate key situation, or more generally, when the repository
+    // throws errors.
   });
 
   describe("test", () => {

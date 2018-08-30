@@ -16,6 +16,7 @@
     },
     "file-name-casing": [true, "kebab-case"],
     "object-literal-shorthand": [true, "never"], // the shorthand obstructs renaming
+    "comment-format": [true, "check-space"], // no check of upper or lower case, because impractical e.g. with multi-line comments
     "no-magic-numbers": false,
     "newline-before-return": false,
     "only-arrow-functions": false,
