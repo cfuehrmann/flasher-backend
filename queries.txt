@@ -1,0 +1,71 @@
+query findNextTest {
+  findNextTest {
+    id
+    prompt
+    nextTime
+  }
+}
+
+-------------------------------
+
+mutation createTest($prompt: String!, $solution: String!) {
+  createTest(prompt: $prompt, solution: $solution)
+}
+
+{
+  "prompt": "prompt",
+  "solution": "solution"
+}
+
+------------------------------
+
+mutation updateTest($id: ID!, $prompt: String!, $solution: String!, $isMinor: Boolean!) {
+  updateTest(id: $id, prompt: $prompt, solution: $solution, isMinor: $isMinor) {
+    id
+  }
+}
+
+{
+  "id": "847f2e99-9d73-40f4-b85e-c6d34ed810a2",
+  "prompt": "prompt",
+  "solution": "solution",
+  "isMinor": false
+}
+
+---------------------------
+
+mutation setFailed($id: ID!) {
+  setFailed(id: $id)
+}
+
+mutation setOk($id: ID!) {
+  setOk(id: $id)
+}
+
+{
+  "id": "847f2e99-9d73-40f4-b85e-c6d34ed810a2"
+}
+
+-------------------------------
+
+query test($id: ID!) {
+  test(id: $id) {
+    id
+  }
+}
+
+{
+  "id": "847f2e99-9d73-40f4-b85e-c6d34ed810a2"
+}
+
+--------------------------------
+
+query tests($substring: String!) {
+  tests(substring: $substring) {
+    id
+  }
+}
+
+{
+  "substring": "e"
+}

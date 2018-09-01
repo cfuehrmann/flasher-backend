@@ -7,8 +7,10 @@ export const schema = buildSchema(`
       findNextTest: Test
     },
     type Mutation {
-      createTest(prompt: String!, solution: String!) : Boolean
+      createTest(prompt: String!, solution: String!): Boolean
       updateTest(id: ID!, prompt: String, solution: String, isMinor: Boolean): Test
+      setOk(id: ID!): Boolean
+      setFailed(id: ID!): Boolean
     },
     type Test {
       id: ID!
