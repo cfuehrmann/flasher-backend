@@ -4,7 +4,7 @@ import { domainLogic } from "../app/domain-logic";
 import { Repository, Test, TestUpdate } from "../app/types";
 
 describe("domainLogic", () => {
-  const repository = Object.freeze<Repository>({
+  const skeletelRepo = Object.freeze<Repository>({
     createTest: test => undefined,
     getTest: id => undefined,
     findTests: substring => [],
@@ -22,18 +22,18 @@ describe("domainLogic", () => {
   });
 
   it("creation should not crash", () => {
-    domainLogic(repository, () => new Date(), () => "someId");
+    domainLogic(skeletelRepo, () => new Date(), () => "someId");
   });
 
   describe("createTest", () => {
-    it("should create repository record with all fields initialized properly", () => {
+    it("should use repository create with all fields initialized properly", () => {
       // Arrange
       const now = new Date("2018-07-21T01:02:04.567");
       const uuid = "d9f77655-c17e-43a5-a7be-997a01d65c37";
       const arg = { prompt: "prompt", solution: "solution" };
       const logic = domainLogic(
         {
-          ...repository,
+          ...skeletelRepo,
           createTest: (repositoryArg: Test) => {
             const expected: Test = {
               id: uuid,
@@ -52,16 +52,13 @@ describe("domainLogic", () => {
       // Act/Assert
       logic.createTest(arg);
     });
-
-    // Todo: test the duplicate key situation, or more generally, when the repository
-    // throws errors.
   });
 
   describe("test", () => {
-    it("should return repository result when found", () => {
+    it("should return repository result", () => {
       const logic = domainLogic(
         {
-          ...repository,
+          ...skeletelRepo,
           getTest: id => (id === "42" ? skeletalTest : undefined),
         },
         () => new Date(),
@@ -72,18 +69,6 @@ describe("domainLogic", () => {
 
       assert.strictEqual(result, skeletalTest);
     });
-
-    it("should return undefined when not found", () => {
-      const logic = domainLogic(
-        { ...repository, getTest: () => undefined },
-        () => new Date(),
-        () => "someId",
-      );
-
-      const result = logic.test({ id: "42" });
-
-      assert.strictEqual(result, undefined);
-    });
   });
 
   describe("tests", () => {
@@ -92,7 +77,7 @@ describe("domainLogic", () => {
 
       const logic = domainLogic(
         {
-          ...repository,
+          ...skeletelRepo,
           findTests: substring =>
             substring === "ohn smit" ? repositoryResult : [],
         },
@@ -107,7 +92,7 @@ describe("domainLogic", () => {
   });
 
   describe("updateTest", () => {
-    it("should update prompt and solution when isMinor is true", () => {
+    it("should use repository update with prompt and solution when isMinor is true", () => {
       // Arrange
       const args = {
         id: "42",
@@ -122,7 +107,7 @@ describe("domainLogic", () => {
       };
       const logic = domainLogic(
         {
-          ...repository,
+          ...skeletelRepo,
           updateTest: repositoryArgs => {
             assert.deepStrictEqual(repositoryArgs, expectedArgs);
             return skeletalTest;
@@ -139,7 +124,7 @@ describe("domainLogic", () => {
       assert.strictEqual(result, skeletalTest);
     });
 
-    it("should update everything when isMinor is false", () => {
+    it("should use repository update with all fields set when isMinor is false", () => {
       // Arrange
       const args = {
         id: "42",
@@ -150,7 +135,7 @@ describe("domainLogic", () => {
       const now = new Date();
       const logic = domainLogic(
         {
-          ...repository,
+          ...skeletelRepo,
           updateTest: repositoryArgs => {
             const expected: TestUpdate = {
               id: args.id,
@@ -177,11 +162,11 @@ describe("domainLogic", () => {
   });
 
   describe("findNextTest", () => {
-    it("should return repository result when found", () => {
+    it("should return repository result", () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
       const logic = domainLogic(
         {
-          ...repository,
+          ...skeletelRepo,
           findNextTest: time => (time === now ? skeletalTest : undefined),
         },
         () => now,
@@ -191,19 +176,6 @@ describe("domainLogic", () => {
       const result = logic.findNextTest();
 
       assert.strictEqual(result, skeletalTest);
-    });
-
-    it("should return undefined when not found", () => {
-      const now = new Date("2018-07-29T17:53:12.345Z");
-      const logic = domainLogic(
-        { ...repository, findNextTest: () => undefined },
-        () => now,
-        () => "someId",
-      );
-
-      const result = logic.findNextTest();
-
-      assert.strictEqual(result, undefined);
     });
   });
 
@@ -220,96 +192,64 @@ describe("domainLogic", () => {
       nextTime: subSeconds(now, 100),
     });
 
-    function getTest(id: string) {
-      return id === test.id ? test : undefined;
-    }
+    type RepoArgs = { updateArg: TestUpdate | "uncalled" };
+
+    let args: RepoArgs;
+
+    const getLogic = () =>
+      domainLogic(
+        {
+          ...skeletelRepo,
+          getTest: id => (id === test.id ? test : undefined),
+          updateTest: update => {
+            args.updateArg = update;
+            return skeletalTest;
+          },
+        },
+        () => now,
+        () => "newUuid",
+      );
+
+    beforeEach(() => {
+      args = { updateArg: "uncalled" };
+    });
 
     it("setOk should work correctly when test found", () => {
-      const update: TestUpdate = {
+      const result = getLogic().setOk({ id: test.id });
+
+      assert.deepStrictEqual(args.updateArg, {
         id: test.id,
         state: "Ok",
         changeTime: now,
         nextTime: addSeconds(now, passedTime * 2),
-      };
-      const logic = domainLogic(
-        {
-          ...repository,
-          getTest: getTest,
-          updateTest: u => {
-            assert.deepStrictEqual(u, update);
-            return undefined;
-          },
-        },
-        () => now,
-        () => "someId",
-      );
-
-      logic.setOk({ id: test.id });
+      });
+      assert.strictEqual(result, skeletalTest);
     });
 
     it("setFailed should work correctly when test found", () => {
-      const update: TestUpdate = {
+      const result = getLogic().setFailed({ id: test.id });
+
+      assert.deepStrictEqual(args.updateArg, {
         id: test.id,
         state: "Failed",
         changeTime: now,
         nextTime: addSeconds(now, Math.floor(passedTime / 2)),
-      };
-      const logic = domainLogic(
-        {
-          ...repository,
-          getTest: getTest,
-          updateTest: u => {
-            assert.deepStrictEqual(u, update);
-            return undefined;
-          },
-        },
-        () => now,
-        () => "someId",
-      );
-
-      logic.setFailed({ id: test.id });
+      });
+      assert.strictEqual(result, skeletalTest);
     });
 
-    const nonExistingId = "nonExistingId";
+    it("setOk should return undefined when test not found", () => {
+      const result = getLogic().setOk({ id: "newUuid" });
 
-    const emptyRepository = Object.freeze<Repository>({
-      ...repository,
-      getTest: id => undefined,
-      updateTest: update => {
-        throw new Error("updateTest should not be called");
-      },
+      assert.strictEqual(args.updateArg, "uncalled");
+      assert.strictEqual(result, undefined);
     });
 
-    it("setOk should throw error when id not found", () => {
-      const logic = domainLogic(
-        { ...repository, ...emptyRepository },
-        () => now,
-        () => "someId",
-      );
+    it("setFailed should return undefined when test not found", () => {
+      const result = getLogic().setFailed({ id: "newUuid" });
 
-      assert.throws(
-        () => {
-          logic.setOk({ id: nonExistingId });
-        },
-        (err: unknown) =>
-          err instanceof Error && err.message.includes(nonExistingId),
-      );
-    });
-
-    it("setFailed should throw error when id not found", () => {
-      const logic = domainLogic(
-        { ...repository, ...emptyRepository },
-        () => now,
-        () => "someId",
-      );
-
-      assert.throws(
-        () => {
-          logic.setFailed({ id: nonExistingId });
-        },
-        (err: unknown) =>
-          err instanceof Error && err.message.includes(nonExistingId),
-      );
+      assert.strictEqual(args.updateArg, "uncalled");
+      assert.strictEqual(result, undefined);
     });
   });
 });

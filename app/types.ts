@@ -2,7 +2,7 @@ export type Repository = {
   createTest(test: Readonly<Test>): void;
   getTest(id: string): Test | undefined;
   findTests(substring: string): Test[];
-  updateTest(test: Readonly<TestUpdate>): Test | undefined;
+  updateTest(update: Readonly<TestUpdate>): Test | undefined;
   findNextTest(time: Date): Test | undefined;
 };
 

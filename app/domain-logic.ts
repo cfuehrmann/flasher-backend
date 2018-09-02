@@ -64,15 +64,11 @@ export const domainLogic = (
 
     findNextTest: () => repository.findNextTest(getTime()),
 
-    setOk: ({ id }: { id: string }) => {
-      setState(id, "Ok", (passedTime: number) => passedTime * 2);
-    },
+    setOk: ({ id }: { id: string }) =>
+      setState(id, "Ok", passedTime => passedTime * 2),
 
-    setFailed: ({ id }: { id: string }) => {
-      setState(id, "Failed", (passedTime: number) =>
-        Math.floor(passedTime / 2),
-      );
-    },
+    setFailed: ({ id }: { id: string }) =>
+      setState(id, "Failed", passedTime => Math.floor(passedTime / 2)),
   };
 
   function setState(
@@ -83,14 +79,13 @@ export const domainLogic = (
     const test = repository.getTest(id);
 
     if (test === undefined) {
-      throw new Error(`Test with id '${id}' not found!`);
+      return undefined;
     }
 
     const now = getTime();
-
     const passedTime = differenceInSeconds(now, test.changeTime);
 
-    repository.updateTest({
+    return repository.updateTest({
       id: id,
       state: state,
       changeTime: now,
