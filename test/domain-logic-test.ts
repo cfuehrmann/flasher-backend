@@ -4,25 +4,36 @@ import { domainLogic } from "../app/domain-logic";
 import { Repository, Test, TestUpdate } from "../app/types";
 
 describe("domainLogic", () => {
-  const skeletelRepo = Object.freeze<Repository>({
-    createTest: test => undefined,
-    getTest: id => undefined,
-    findTests: substring => [],
-    updateTest: test => undefined,
-    findNextTest: time => undefined,
-  });
+  const unImplementedRepo: Repository = {
+    createTest: test => {
+      throw new Error();
+    },
+    getTest: id => {
+      throw new Error();
+    },
+    findTests: substring => {
+      throw new Error();
+    },
+    updateTest: test => {
+      throw new Error();
+    },
+    findNextTest: time => {
+      throw new Error();
+    },
+  };
 
-  const skeletalTest = Object.freeze<Test>({
+  // A test that is only ever checked as an object reference
+  const testObjectReference: Test = {
     id: "",
     prompt: "",
     solution: "",
     changeTime: new Date(),
     nextTime: new Date(),
     state: "Ok",
-  });
+  };
 
   it("creation should not crash", () => {
-    domainLogic(skeletelRepo, () => new Date(), () => "someId");
+    domainLogic(unImplementedRepo, () => new Date(), () => "someId");
   });
 
   describe("createTest", () => {
@@ -33,7 +44,7 @@ describe("domainLogic", () => {
       const arg = { prompt: "prompt", solution: "solution" };
       const logic = domainLogic(
         {
-          ...skeletelRepo,
+          ...unImplementedRepo,
           createTest: (repositoryArg: Test) => {
             const expected: Test = {
               id: uuid,
@@ -58,8 +69,8 @@ describe("domainLogic", () => {
     it("should return repository result", () => {
       const logic = domainLogic(
         {
-          ...skeletelRepo,
-          getTest: id => (id === "42" ? skeletalTest : undefined),
+          ...unImplementedRepo,
+          getTest: id => (id === "42" ? testObjectReference : undefined),
         },
         () => new Date(),
         () => "someId",
@@ -67,17 +78,17 @@ describe("domainLogic", () => {
 
       const result = logic.test({ id: "42" });
 
-      assert.strictEqual(result, skeletalTest);
+      assert.strictEqual(result, testObjectReference);
     });
   });
 
   describe("tests", () => {
     it("should return repository result", () => {
-      const repositoryResult = [skeletalTest];
+      const repositoryResult = [testObjectReference];
 
       const logic = domainLogic(
         {
-          ...skeletelRepo,
+          ...unImplementedRepo,
           findTests: substring =>
             substring === "ohn smit" ? repositoryResult : [],
         },
@@ -107,10 +118,10 @@ describe("domainLogic", () => {
       };
       const logic = domainLogic(
         {
-          ...skeletelRepo,
+          ...unImplementedRepo,
           updateTest: repositoryArgs => {
             assert.deepStrictEqual(repositoryArgs, expectedArgs);
-            return skeletalTest;
+            return testObjectReference;
           },
         },
         () => new Date(),
@@ -121,7 +132,7 @@ describe("domainLogic", () => {
       const result = logic.updateTest(args);
 
       // Assert
-      assert.strictEqual(result, skeletalTest);
+      assert.strictEqual(result, testObjectReference);
     });
 
     it("should use repository update with all fields set when isMinor is false", () => {
@@ -135,7 +146,7 @@ describe("domainLogic", () => {
       const now = new Date();
       const logic = domainLogic(
         {
-          ...skeletelRepo,
+          ...unImplementedRepo,
           updateTest: repositoryArgs => {
             const expected: TestUpdate = {
               id: args.id,
@@ -146,7 +157,7 @@ describe("domainLogic", () => {
               nextTime: addMinutes(now, 30),
             };
             assert.deepStrictEqual(repositoryArgs, expected);
-            return skeletalTest;
+            return testObjectReference;
           },
         },
         () => now,
@@ -157,7 +168,7 @@ describe("domainLogic", () => {
       const result = logic.updateTest(args);
 
       // Assert
-      assert.strictEqual(result, skeletalTest);
+      assert.strictEqual(result, testObjectReference);
     });
   });
 
@@ -166,8 +177,9 @@ describe("domainLogic", () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
       const logic = domainLogic(
         {
-          ...skeletelRepo,
-          findNextTest: time => (time === now ? skeletalTest : undefined),
+          ...unImplementedRepo,
+          findNextTest: time =>
+            time === now ? testObjectReference : undefined,
         },
         () => now,
         () => "someId",
@@ -175,80 +187,90 @@ describe("domainLogic", () => {
 
       const result = logic.findNextTest();
 
-      assert.strictEqual(result, skeletalTest);
+      assert.strictEqual(result, testObjectReference);
     });
   });
 
   describe("setOk/setFailed", () => {
-    const now = new Date("2018-07-29T17:01:02.345Z");
     const passedTime = 41;
+    const testId = "someId";
 
-    const test = Object.freeze<Test>({
-      id: "someId",
-      prompt: "prompt",
-      solution: "solution",
-      state: "New",
-      changeTime: subSeconds(now, passedTime),
-      nextTime: subSeconds(now, 100),
-    });
+    const getSetup = () => {
+      const repoArgs: { updateArg: TestUpdate | "uncalled" } = {
+        updateArg: "uncalled",
+      };
+      const now = new Date("2018-07-29T17:01:02.345Z");
+      const test: Test = {
+        id: testId,
+        prompt: "prompt",
+        solution: "solution",
+        state: "New",
+        changeTime: subSeconds(now, passedTime),
+        nextTime: subSeconds(now, 100),
+      };
 
-    type RepoArgs = { updateArg: TestUpdate | "uncalled" };
-
-    let args: RepoArgs;
-
-    const getLogic = () =>
-      domainLogic(
-        {
-          ...skeletelRepo,
-          getTest: id => (id === test.id ? test : undefined),
-          updateTest: update => {
-            args.updateArg = update;
-            return skeletalTest;
+      return {
+        logic: domainLogic(
+          {
+            ...unImplementedRepo,
+            getTest: id => (id === test.id ? test : undefined),
+            updateTest: update => {
+              repoArgs.updateArg = update;
+              return testObjectReference;
+            },
           },
-        },
-        () => now,
-        () => "newUuid",
-      );
-
-    beforeEach(() => {
-      args = { updateArg: "uncalled" };
-    });
+          () => now,
+          () => "newUuid",
+        ),
+        repoArgs: repoArgs,
+        now: now,
+        test: test,
+      };
+    };
 
     it("setOk should work correctly when test found", () => {
-      const result = getLogic().setOk({ id: test.id });
+      const setup = getSetup();
 
-      assert.deepStrictEqual(args.updateArg, {
-        id: test.id,
+      const result = setup.logic.setOk({ id: testId });
+
+      assert.deepStrictEqual(setup.repoArgs.updateArg, {
+        id: testId,
         state: "Ok",
-        changeTime: now,
-        nextTime: addSeconds(now, passedTime * 2),
+        changeTime: setup.now,
+        nextTime: addSeconds(setup.now, passedTime * 2),
       });
-      assert.strictEqual(result, skeletalTest);
+      assert.strictEqual(result, testObjectReference);
     });
 
     it("setFailed should work correctly when test found", () => {
-      const result = getLogic().setFailed({ id: test.id });
+      const setup = getSetup();
 
-      assert.deepStrictEqual(args.updateArg, {
-        id: test.id,
+      const result = setup.logic.setFailed({ id: setup.test.id });
+
+      assert.deepStrictEqual(setup.repoArgs.updateArg, {
+        id: testId,
         state: "Failed",
-        changeTime: now,
-        nextTime: addSeconds(now, Math.floor(passedTime / 2)),
+        changeTime: setup.now,
+        nextTime: addSeconds(setup.now, Math.floor(passedTime / 2)),
       });
-      assert.strictEqual(result, skeletalTest);
+      assert.strictEqual(result, testObjectReference);
     });
 
-    it("setOk should return undefined when test not found", () => {
-      const result = getLogic().setOk({ id: "newUuid" });
+    it("setOk should work correctly when test not found", () => {
+      const setup = getSetup();
 
-      assert.strictEqual(args.updateArg, "uncalled");
+      const result = setup.logic.setOk({ id: "newUuid" });
+
+      assert.strictEqual(setup.repoArgs.updateArg, "uncalled");
       assert.strictEqual(result, undefined);
     });
 
-    it("setFailed should return undefined when test not found", () => {
-      const result = getLogic().setFailed({ id: "newUuid" });
+    it("setFailed should work correctly when test not found", () => {
+      const setup = getSetup();
 
-      assert.strictEqual(args.updateArg, "uncalled");
+      const result = setup.logic.setFailed({ id: "newUuid" });
+
+      assert.strictEqual(setup.repoArgs.updateArg, "uncalled");
       assert.strictEqual(result, undefined);
     });
   });
