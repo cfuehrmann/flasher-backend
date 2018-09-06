@@ -37,31 +37,36 @@ describe("domainLogic", () => {
   });
 
   describe("createTest", () => {
-    it("should use repository create with all fields initialized properly", () => {
+    it("should use repository create with all fields set correctly", () => {
       // Arrange
-      const now = new Date("2018-07-21T01:02:04.567");
-      const uuid = "d9f77655-c17e-43a5-a7be-997a01d65c37";
-      const arg = { prompt: "prompt", solution: "solution" };
+      const repoArgs: { createTestArg: Test | "uncalled" } = {
+        createTestArg: "uncalled",
+      };
+      const now = new Date("2018-07-29T17:01:02.345Z");
+      const id = "d9f77655-c17e-43a5-a7be-997a01d65c37";
       const logic = domainLogic(
         {
           ...unImplementedRepo,
-          createTest: (repositoryArg: Test) => {
-            const expected: Test = {
-              id: uuid,
-              ...arg,
-              state: "New",
-              changeTime: now,
-              nextTime: addMinutes(now, 10),
-            };
-            assert.deepStrictEqual(repositoryArg, expected);
+          createTest: test => {
+            repoArgs.createTestArg = test;
           },
         },
         () => now,
-        () => uuid,
+        () => id,
       );
+      const arg = { prompt: "prompt", solution: "solution" };
 
-      // Act/Assert
+      // Act
       logic.createTest(arg);
+
+      // Assert
+      assert.deepStrictEqual(repoArgs.createTestArg, {
+        id: id,
+        ...arg,
+        state: "New",
+        changeTime: now,
+        nextTime: addMinutes(now, 10),
+      } as Test);
     });
   });
 
@@ -85,7 +90,6 @@ describe("domainLogic", () => {
   describe("tests", () => {
     it("should return repository result", () => {
       const repositoryResult = [testObjectReference];
-
       const logic = domainLogic(
         {
           ...unImplementedRepo,
@@ -103,71 +107,72 @@ describe("domainLogic", () => {
   });
 
   describe("updateTest", () => {
+    const getSetup = () => {
+      const repoArgs: { updateArg: TestUpdate | "uncalled" } = {
+        updateArg: "uncalled",
+      };
+      const now = new Date("2018-07-29T17:01:02.345Z");
+      return {
+        logic: domainLogic(
+          {
+            ...unImplementedRepo,
+            updateTest: update => {
+              repoArgs.updateArg = update;
+              return testObjectReference;
+            },
+          },
+          () => now,
+          () => "newUuid",
+        ),
+        repoArgs: repoArgs,
+        now: now,
+      };
+    };
+
     it("should use repository update with prompt and solution when isMinor is true", () => {
       // Arrange
+      const setup = getSetup();
       const args = {
         id: "42",
         prompt: "prompt",
         solution: "solution",
         isMinor: true,
       };
-      const expectedArgs: TestUpdate = {
+
+      // Act
+      const result = setup.logic.updateTest(args);
+
+      // Assert
+      assert.deepStrictEqual(setup.repoArgs.updateArg, {
         id: args.id,
         prompt: args.prompt,
         solution: args.solution,
-      };
-      const logic = domainLogic(
-        {
-          ...unImplementedRepo,
-          updateTest: repositoryArgs => {
-            assert.deepStrictEqual(repositoryArgs, expectedArgs);
-            return testObjectReference;
-          },
-        },
-        () => new Date(),
-        () => "someId",
-      );
-
-      // Act/Assert
-      const result = logic.updateTest(args);
-
-      // Assert
+      } as TestUpdate);
       assert.strictEqual(result, testObjectReference);
     });
 
     it("should use repository update with all fields set when isMinor is false", () => {
       // Arrange
+      const setup = getSetup();
       const args = {
         id: "42",
         prompt: "prompt",
         solution: "solution",
         isMinor: false,
       };
-      const now = new Date();
-      const logic = domainLogic(
-        {
-          ...unImplementedRepo,
-          updateTest: repositoryArgs => {
-            const expected: TestUpdate = {
-              id: args.id,
-              prompt: args.prompt,
-              solution: args.solution,
-              state: "New",
-              changeTime: now,
-              nextTime: addMinutes(now, 30),
-            };
-            assert.deepStrictEqual(repositoryArgs, expected);
-            return testObjectReference;
-          },
-        },
-        () => now,
-        () => "someId",
-      );
 
-      // Act/Assert
-      const result = logic.updateTest(args);
+      // Act
+      const result = setup.logic.updateTest(args);
 
       // Assert
+      assert.deepStrictEqual(setup.repoArgs.updateArg, {
+        id: args.id,
+        prompt: args.prompt,
+        solution: args.solution,
+        state: "New",
+        changeTime: setup.now,
+        nextTime: addMinutes(setup.now, 30),
+      } as TestUpdate);
       assert.strictEqual(result, testObjectReference);
     });
   });

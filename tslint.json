@@ -25,7 +25,8 @@
     "prefer-method-signature": false,
     "no-unused-variable": false,
     "completed-docs": false,
-    "strict-type-predicates": false // Not working with type "unknown"
+    "strict-type-predicates": false, // Not working with type "unknown"
+    "no-object-literal-type-assertion": false
   },
   "rulesDirectory": []
 }
