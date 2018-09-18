@@ -1,3 +1,4 @@
+import * as cors from "cors";
 import * as express from "express";
 import * as expressGraphQL from "express-graphql";
 import { v4 as uuidV4 } from "uuid";
@@ -6,6 +7,8 @@ import { repositoryTools } from "./production-config";
 import { schema } from "./schema";
 
 const app = express();
+
+app.use(cors());
 
 app.use(
   "/graphql",
