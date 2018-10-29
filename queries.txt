@@ -1,5 +1,5 @@
-query findNextTest {
-  findNextTest {
+query findNextCard {
+  findNextCard {
     id
     prompt
     nextTime
@@ -8,8 +8,8 @@ query findNextTest {
 
 -------------------------------
 
-mutation createTest($prompt: String!, $solution: String!) {
-  createTest(prompt: $prompt, solution: $solution)
+mutation createCard($prompt: String!, $solution: String!) {
+  createCard(prompt: $prompt, solution: $solution)
 }
 
 {
@@ -19,8 +19,8 @@ mutation createTest($prompt: String!, $solution: String!) {
 
 ------------------------------
 
-mutation updateTest($id: ID!, $prompt: String!, $solution: String!, $isMinor: Boolean!) {
-  updateTest(id: $id, prompt: $prompt, solution: $solution, isMinor: $isMinor) {
+mutation updateCard($id: ID!, $prompt: String!, $solution: String!, $isMinor: Boolean!) {
+  updateCard(id: $id, prompt: $prompt, solution: $solution, isMinor: $isMinor) {
     id
   }
 }

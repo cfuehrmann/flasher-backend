@@ -2,17 +2,17 @@ import { buildSchema } from "graphql";
 
 export const schema = buildSchema(`
     type Query {
-      test(id: ID!): Test
-      tests(substring: String!): [Test]
-      findNextTest: Test
+      card(id: ID!): Card
+      cards(substring: String!): [Card]
+      findNextCard: Card
     },
     type Mutation {
-      createTest(prompt: String!, solution: String!): Boolean
-      updateTest(id: ID!, prompt: String, solution: String, isMinor: Boolean): Test
+      createCard(prompt: String!, solution: String!): Boolean
+      updateCard(id: ID!, prompt: String, solution: String, isMinor: Boolean): Card
       setOk(id: ID!): Boolean
       setFailed(id: ID!): Boolean
     },
-    type Test {
+    type Card {
       id: ID!
       prompt: String!
       solution: String!

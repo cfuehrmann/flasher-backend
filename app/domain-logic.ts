@@ -7,7 +7,7 @@ export const domainLogic = (
   createUuid: () => string,
 ) => {
   return {
-    createTest: ({
+    createCard: ({
       prompt,
       solution,
     }: {
@@ -16,7 +16,7 @@ export const domainLogic = (
     }) => {
       const now = getTime();
 
-      repository.createTest({
+      repository.createCard({
         id: createUuid(),
         prompt: prompt,
         solution: solution,
@@ -26,12 +26,12 @@ export const domainLogic = (
       });
     },
 
-    test: ({ id }: { id: string }) => repository.getTest(id),
+    card: ({ id }: { id: string }) => repository.getCard(id),
 
-    tests: ({ substring }: { substring: string }) =>
-      repository.findTests(substring),
+    cards: ({ substring }: { substring: string }) =>
+      repository.findCards(substring),
 
-    updateTest: ({
+    updateCard: ({
       id,
       prompt,
       solution,
@@ -43,7 +43,7 @@ export const domainLogic = (
       isMinor: boolean;
     }) => {
       if (isMinor) {
-        return repository.updateTest({
+        return repository.updateCard({
           id: id,
           prompt: prompt,
           solution: solution,
@@ -52,7 +52,7 @@ export const domainLogic = (
 
       const now = getTime();
 
-      return repository.updateTest({
+      return repository.updateCard({
         id: id,
         prompt: prompt,
         solution: solution,
@@ -62,7 +62,7 @@ export const domainLogic = (
       });
     },
 
-    findNextTest: () => repository.findNextTest(getTime()),
+    findNextCard: () => repository.findNextCard(getTime()),
 
     setOk: ({ id }: { id: string }) =>
       setState(id, "Ok", passedTime => passedTime * 2),
@@ -76,16 +76,16 @@ export const domainLogic = (
     state: State,
     getTimeToWait: (passedTime: number) => number,
   ) {
-    const test = repository.getTest(id);
+    const card = repository.getCard(id);
 
-    if (test === undefined) {
+    if (card === undefined) {
       return undefined;
     }
 
     const now = getTime();
-    const passedTime = differenceInSeconds(now, test.changeTime);
+    const passedTime = differenceInSeconds(now, card.changeTime);
 
-    return repository.updateTest({
+    return repository.updateCard({
       id: id,
       state: state,
       changeTime: now,

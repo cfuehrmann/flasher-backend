@@ -1,15 +1,15 @@
 export type Repository = {
-  createTest(test: Readonly<Test>): void;
-  getTest(id: string): Test | undefined;
-  findTests(substring: string): Test[];
-  updateTest(update: Readonly<TestUpdate>): Test | undefined;
-  findNextTest(time: Date): Test | undefined;
+  createCard(card: Readonly<Card>): void;
+  getCard(id: string): Card | undefined;
+  findCards(substring: string): Card[];
+  updateCard(update: Readonly<CardUpdate>): Card | undefined;
+  findNextCard(time: Date): Card | undefined;
 };
 
-export type Test = { id: string } & TestUpdatables;
-export type TestUpdate = { id: string } & Partial<TestUpdatables>;
+export type Card = { id: string } & CardUpdatables;
+export type CardUpdate = { id: string } & Partial<CardUpdatables>;
 
-type TestUpdatables = {
+type CardUpdatables = {
   prompt: string;
   solution: string;
   state: State;

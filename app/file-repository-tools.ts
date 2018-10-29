@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { Repository, Test } from "./types";
+import { Card, Repository } from "./types";
 
 export const createFileRepositoryTools = (fileName: string) => {
   const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
@@ -8,68 +8,68 @@ export const createFileRepositoryTools = (fileName: string) => {
 
   function connect(): Repository {
     const json = fs.readFileSync(fileName).toString();
-    const data = JSON.parse(json, reviver) as Test[]; // Todo: runtime check if the type assertion is correct?
+    const data = JSON.parse(json, reviver) as Card[]; // Todo: runtime check if the type assertion is correct?
 
     return {
-      createTest: test => {
-        const testsWithSameId = data.filter(t => t.id === test.id);
-        if (testsWithSameId.length > 0) {
+      createCard: card => {
+        const cardsWithSameId = data.filter(t => t.id === card.id);
+        if (cardsWithSameId.length > 0) {
           throw new Error("Key already exists!");
         }
-        data.push({ ...test });
+        data.push({ ...card });
         writeJsonToFile(data);
       },
 
-      getTest: id => {
-        const hits = data.filter(test => test.id === id);
+      getCard: id => {
+        const hits = data.filter(card => card.id === id);
         if (hits.length > 0) {
           return { ...hits[0] };
         }
       },
 
-      findTests: substring =>
+      findCards: substring =>
         data
           .filter(
-            test =>
-              test.prompt.includes(substring) ||
-              test.solution.includes(substring),
+            card =>
+              card.prompt.includes(substring) ||
+              card.solution.includes(substring),
           )
-          .map(test => ({ ...test })),
+          .map(card => ({ ...card })),
 
-      updateTest: ({ id, prompt, solution, state, changeTime, nextTime }) => {
-        for (const test of data) {
-          if (test.id !== id) {
+      updateCard: ({ id, prompt, solution, state, changeTime, nextTime }) => {
+        for (const card of data) {
+          if (card.id !== id) {
             continue;
           }
 
           if (prompt !== undefined) {
-            test.prompt = prompt;
+            card.prompt = prompt;
           }
           if (solution !== undefined) {
-            test.solution = solution;
+            card.solution = solution;
           }
           if (state !== undefined) {
-            test.state = state;
+            card.state = state;
           }
           if (changeTime !== undefined) {
-            test.changeTime = changeTime;
+            card.changeTime = changeTime;
           }
           if (nextTime !== undefined) {
-            test.nextTime = nextTime;
+            card.nextTime = nextTime;
           }
 
           writeJsonToFile(data);
 
-          return { ...test };
+          return { ...card };
         }
       },
 
-      findNextTest: time =>
+      findNextCard: time =>
         data
-          .filter(test => test.nextTime <= time)
+          .filter(card => card.nextTime <= time)
           .sort(
-            (test1, test2) =>
-              test1.nextTime.getTime() - test2.nextTime.getTime(),
+            (card1, card2) =>
+              card1.nextTime.getTime() - card2.nextTime.getTime(),
           )[0],
     };
   }

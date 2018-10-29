@@ -1,29 +1,29 @@
 import * as assert from "assert";
 import { addMinutes, addSeconds, subSeconds } from "date-fns";
 import { domainLogic } from "../app/domain-logic";
-import { Repository, Test, TestUpdate } from "../app/types";
+import { Card, CardUpdate, Repository } from "../app/types";
 
 describe("domainLogic", () => {
   const unImplementedRepo: Repository = {
-    createTest: test => {
+    createCard: card => {
       throw new Error();
     },
-    getTest: id => {
+    getCard: id => {
       throw new Error();
     },
-    findTests: substring => {
+    findCards: substring => {
       throw new Error();
     },
-    updateTest: test => {
+    updateCard: card => {
       throw new Error();
     },
-    findNextTest: time => {
+    findNextCard: time => {
       throw new Error();
     },
   };
 
-  // A test that is only ever checked as an object reference
-  const testObjectReference: Test = {
+  // A card that is only ever checked as an object reference
+  const cardObjectReference: Card = {
     id: "",
     prompt: "",
     solution: "",
@@ -36,19 +36,19 @@ describe("domainLogic", () => {
     domainLogic(unImplementedRepo, () => new Date(), () => "someId");
   });
 
-  describe("createTest", () => {
+  describe("createCard", () => {
     it("should use repository create with all fields set correctly", () => {
       // Arrange
-      const repoArgs: { createTestArg: Test | "uncalled" } = {
-        createTestArg: "uncalled",
+      const repoArgs: { createCardArg: Card | "uncalled" } = {
+        createCardArg: "uncalled",
       };
       const now = new Date("2018-07-29T17:01:02.345Z");
       const id = "d9f77655-c17e-43a5-a7be-997a01d65c37";
       const logic = domainLogic(
         {
           ...unImplementedRepo,
-          createTest: test => {
-            repoArgs.createTestArg = test;
+          createCard: card => {
+            repoArgs.createCardArg = card;
           },
         },
         () => now,
@@ -57,58 +57,58 @@ describe("domainLogic", () => {
       const arg = { prompt: "prompt", solution: "solution" };
 
       // Act
-      logic.createTest(arg);
+      logic.createCard(arg);
 
       // Assert
-      assert.deepStrictEqual(repoArgs.createTestArg, {
+      assert.deepStrictEqual(repoArgs.createCardArg, {
         id: id,
         ...arg,
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 10),
-      } as Test);
+      } as Card);
     });
   });
 
-  describe("test", () => {
+  describe("card", () => {
     it("should return repository result", () => {
       const logic = domainLogic(
         {
           ...unImplementedRepo,
-          getTest: id => (id === "42" ? testObjectReference : undefined),
+          getCard: id => (id === "42" ? cardObjectReference : undefined),
         },
         () => new Date(),
         () => "someId",
       );
 
-      const result = logic.test({ id: "42" });
+      const result = logic.card({ id: "42" });
 
-      assert.strictEqual(result, testObjectReference);
+      assert.strictEqual(result, cardObjectReference);
     });
   });
 
-  describe("tests", () => {
+  describe("cards", () => {
     it("should return repository result", () => {
-      const repositoryResult = [testObjectReference];
+      const repositoryResult = [cardObjectReference];
       const logic = domainLogic(
         {
           ...unImplementedRepo,
-          findTests: substring =>
+          findCards: substring =>
             substring === "ohn smit" ? repositoryResult : [],
         },
         () => new Date(),
         () => "someId",
       );
 
-      const result = logic.tests({ substring: "ohn smit" });
+      const result = logic.cards({ substring: "ohn smit" });
 
       assert.strictEqual(result, repositoryResult);
     });
   });
 
-  describe("updateTest", () => {
+  describe("updateCard", () => {
     const getSetup = () => {
-      const repoArgs: { updateArg: TestUpdate | "uncalled" } = {
+      const repoArgs: { updateArg: CardUpdate | "uncalled" } = {
         updateArg: "uncalled",
       };
       const now = new Date("2018-07-29T17:01:02.345Z");
@@ -116,9 +116,9 @@ describe("domainLogic", () => {
         logic: domainLogic(
           {
             ...unImplementedRepo,
-            updateTest: update => {
+            updateCard: update => {
               repoArgs.updateArg = update;
-              return testObjectReference;
+              return cardObjectReference;
             },
           },
           () => now,
@@ -140,15 +140,15 @@ describe("domainLogic", () => {
       };
 
       // Act
-      const result = setup.logic.updateTest(args);
+      const result = setup.logic.updateCard(args);
 
       // Assert
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
         id: args.id,
         prompt: args.prompt,
         solution: args.solution,
-      } as TestUpdate);
-      assert.strictEqual(result, testObjectReference);
+      } as CardUpdate);
+      assert.strictEqual(result, cardObjectReference);
     });
 
     it("should use repository update with all fields set when isMinor is false", () => {
@@ -162,7 +162,7 @@ describe("domainLogic", () => {
       };
 
       // Act
-      const result = setup.logic.updateTest(args);
+      const result = setup.logic.updateCard(args);
 
       // Assert
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
@@ -172,41 +172,41 @@ describe("domainLogic", () => {
         state: "New",
         changeTime: setup.now,
         nextTime: addMinutes(setup.now, 30),
-      } as TestUpdate);
-      assert.strictEqual(result, testObjectReference);
+      } as CardUpdate);
+      assert.strictEqual(result, cardObjectReference);
     });
   });
 
-  describe("findNextTest", () => {
+  describe("findNextCard", () => {
     it("should return repository result", () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
       const logic = domainLogic(
         {
           ...unImplementedRepo,
-          findNextTest: time =>
-            time === now ? testObjectReference : undefined,
+          findNextCard: time =>
+            time === now ? cardObjectReference : undefined,
         },
         () => now,
         () => "someId",
       );
 
-      const result = logic.findNextTest();
+      const result = logic.findNextCard();
 
-      assert.strictEqual(result, testObjectReference);
+      assert.strictEqual(result, cardObjectReference);
     });
   });
 
   describe("setOk/setFailed", () => {
     const passedTime = 41;
-    const testId = "someId";
+    const cardId = "someId";
 
     const getSetup = () => {
-      const repoArgs: { updateArg: TestUpdate | "uncalled" } = {
+      const repoArgs: { updateArg: CardUpdate | "uncalled" } = {
         updateArg: "uncalled",
       };
       const now = new Date("2018-07-29T17:01:02.345Z");
-      const test: Test = {
-        id: testId,
+      const card: Card = {
+        id: cardId,
         prompt: "prompt",
         solution: "solution",
         state: "New",
@@ -218,10 +218,10 @@ describe("domainLogic", () => {
         logic: domainLogic(
           {
             ...unImplementedRepo,
-            getTest: id => (id === test.id ? test : undefined),
-            updateTest: update => {
+            getCard: id => (id === card.id ? card : undefined),
+            updateCard: update => {
               repoArgs.updateArg = update;
-              return testObjectReference;
+              return cardObjectReference;
             },
           },
           () => now,
@@ -229,39 +229,39 @@ describe("domainLogic", () => {
         ),
         repoArgs: repoArgs,
         now: now,
-        test: test,
+        card: card,
       };
     };
 
-    it("setOk should work correctly when test found", () => {
+    it("setOk should work correctly when card found", () => {
       const setup = getSetup();
 
-      const result = setup.logic.setOk({ id: testId });
+      const result = setup.logic.setOk({ id: cardId });
 
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
-        id: testId,
+        id: cardId,
         state: "Ok",
         changeTime: setup.now,
         nextTime: addSeconds(setup.now, passedTime * 2),
       });
-      assert.strictEqual(result, testObjectReference);
+      assert.strictEqual(result, cardObjectReference);
     });
 
-    it("setFailed should work correctly when test found", () => {
+    it("setFailed should work correctly when card found", () => {
       const setup = getSetup();
 
-      const result = setup.logic.setFailed({ id: setup.test.id });
+      const result = setup.logic.setFailed({ id: setup.card.id });
 
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
-        id: testId,
+        id: cardId,
         state: "Failed",
         changeTime: setup.now,
         nextTime: addSeconds(setup.now, Math.floor(passedTime / 2)),
       });
-      assert.strictEqual(result, testObjectReference);
+      assert.strictEqual(result, cardObjectReference);
     });
 
-    it("setOk should work correctly when test not found", () => {
+    it("setOk should work correctly when card not found", () => {
       const setup = getSetup();
 
       const result = setup.logic.setOk({ id: "newUuid" });
@@ -270,7 +270,7 @@ describe("domainLogic", () => {
       assert.strictEqual(result, undefined);
     });
 
-    it("setFailed should work correctly when test not found", () => {
+    it("setFailed should work correctly when card not found", () => {
       const setup = getSetup();
 
       const result = setup.logic.setFailed({ id: "newUuid" });
