@@ -64,11 +64,13 @@ export const domainLogic = (
 
     findNextCard: () => repository.findNextCard(getTime()),
 
-    setOk: ({ id }: { id: string }) =>
-      setState(id, "Ok", passedTime => passedTime * 2),
+    setOk: ({ id }: { id: string }) => {
+      setState(id, "Ok", passedTime => passedTime * 2);
+    },
 
-    setFailed: ({ id }: { id: string }) =>
-      setState(id, "Failed", passedTime => Math.floor(passedTime / 2)),
+    setFailed: ({ id }: { id: string }) => {
+      setState(id, "Failed", passedTime => Math.floor(passedTime / 2));
+    },
   };
 
   function setState(
@@ -79,13 +81,13 @@ export const domainLogic = (
     const card = repository.getCard(id);
 
     if (card === undefined) {
-      return undefined;
+      return;
     }
 
     const now = getTime();
     const passedTime = differenceInSeconds(now, card.changeTime);
 
-    return repository.updateCard({
+    repository.updateCard({
       id: id,
       state: state,
       changeTime: now,

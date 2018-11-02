@@ -236,7 +236,7 @@ describe("domainLogic", () => {
     it("setOk should work correctly when card found", () => {
       const setup = getSetup();
 
-      const result = setup.logic.setOk({ id: cardId });
+      setup.logic.setOk({ id: cardId });
 
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
         id: cardId,
@@ -244,13 +244,12 @@ describe("domainLogic", () => {
         changeTime: setup.now,
         nextTime: addSeconds(setup.now, passedTime * 2),
       });
-      assert.strictEqual(result, cardObjectReference);
     });
 
     it("setFailed should work correctly when card found", () => {
       const setup = getSetup();
 
-      const result = setup.logic.setFailed({ id: setup.card.id });
+      setup.logic.setFailed({ id: setup.card.id });
 
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
         id: cardId,
@@ -258,25 +257,22 @@ describe("domainLogic", () => {
         changeTime: setup.now,
         nextTime: addSeconds(setup.now, Math.floor(passedTime / 2)),
       });
-      assert.strictEqual(result, cardObjectReference);
     });
 
     it("setOk should work correctly when card not found", () => {
       const setup = getSetup();
 
-      const result = setup.logic.setOk({ id: "newUuid" });
+      setup.logic.setOk({ id: "newUuid" });
 
       assert.strictEqual(setup.repoArgs.updateArg, "uncalled");
-      assert.strictEqual(result, undefined);
     });
 
     it("setFailed should work correctly when card not found", () => {
       const setup = getSetup();
 
-      const result = setup.logic.setFailed({ id: "newUuid" });
+      setup.logic.setFailed({ id: "newUuid" });
 
       assert.strictEqual(setup.repoArgs.updateArg, "uncalled");
-      assert.strictEqual(result, undefined);
     });
   });
 });
