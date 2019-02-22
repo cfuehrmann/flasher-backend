@@ -115,7 +115,7 @@ describe("repository", () => {
     });
 
     it("should return cards whose prompts contain substring", () => {
-      const result = repository.findCards("romptA");
+      const result = repository.findCards("rOmptA");
 
       const lookup: { [key: string]: Card } = {};
 

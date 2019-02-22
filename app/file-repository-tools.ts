@@ -31,8 +31,8 @@ export const createFileRepositoryTools = (fileName: string) => {
         data
           .filter(
             card =>
-              card.prompt.includes(substring) ||
-              card.solution.includes(substring),
+              card.prompt.toLowerCase().includes(substring.toLowerCase()) ||
+              card.solution.toLowerCase().includes(substring.toLowerCase()),
           )
           .map(card => ({ ...card })),
 
