@@ -26,7 +26,7 @@ export const domainLogic = (
       });
     },
 
-    card: ({ id }: { id: string }) => repository.getCard(id),
+    card: ({ id }: { id: string }) => repository.readCard(id),
 
     updateCard: ({
       id,
@@ -80,7 +80,7 @@ export const domainLogic = (
     state: State,
     getTimeToWait: (passedTime: number) => number,
   ) {
-    const card = repository.getCard(id);
+    const card = repository.readCard(id);
 
     if (card === undefined) {
       return;

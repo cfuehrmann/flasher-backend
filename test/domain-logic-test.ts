@@ -8,7 +8,7 @@ describe("domainLogic", () => {
     createCard: card => {
       throw new Error();
     },
-    getCard: id => {
+    readCard: id => {
       throw new Error();
     },
     updateCard: card => {
@@ -78,7 +78,7 @@ describe("domainLogic", () => {
       const logic = domainLogic(
         {
           ...unImplementedRepo,
-          getCard: id => (id === "42" ? cardObjectReference : undefined),
+          readCard: id => (id === "42" ? cardObjectReference : undefined),
         },
         () => new Date(),
         () => "someId",
@@ -238,7 +238,7 @@ describe("domainLogic", () => {
         logic: domainLogic(
           {
             ...unImplementedRepo,
-            getCard: id => (id === card.id ? card : undefined),
+            readCard: id => (id === card.id ? card : undefined),
             updateCard: update => {
               repoArgs.updateArg = update;
               return cardObjectReference;

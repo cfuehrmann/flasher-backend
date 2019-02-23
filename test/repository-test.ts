@@ -50,8 +50,8 @@ describe("repository", () => {
     it("should create cards that can be retrieved", () => {
       repository.createCard(card0);
       repository.createCard(card1);
-      const foundCard0 = repository.getCard("0");
-      const foundCard1 = repository.getCard("1");
+      const foundCard0 = repository.readCard("0");
+      const foundCard1 = repository.readCard("1");
 
       assert.deepStrictEqual(foundCard0, card0);
       assert.deepStrictEqual(foundCard1, card1);
@@ -61,8 +61,8 @@ describe("repository", () => {
       repository.createCard(card0);
       repository.createCard(card1);
       const newRepository = repositoryTools.connect();
-      const foundCard0 = newRepository.getCard("0");
-      const foundCard1 = newRepository.getCard("1");
+      const foundCard0 = newRepository.readCard("0");
+      const foundCard1 = newRepository.readCard("1");
 
       assert.deepStrictEqual(foundCard0, card0);
       assert.deepStrictEqual(foundCard1, card1);
@@ -80,7 +80,7 @@ describe("repository", () => {
     });
   });
 
-  describe("getCard", () => {
+  describe("readCard", () => {
     beforeEach(() => {
       repository.createCard(card0);
       repository.createCard(card1);
@@ -88,20 +88,20 @@ describe("repository", () => {
     });
 
     it("should return correct data when id found", () => {
-      const result = repository.getCard(card1.id);
+      const result = repository.readCard(card1.id);
 
       assert.deepStrictEqual(result, card1);
     });
 
     it("should return undefined when id not found", () => {
-      const result = repository.getCard("999");
+      const result = repository.readCard("999");
 
       assert.strictEqual(result, undefined);
     });
 
     it("should return copies", () => {
-      const result1 = repository.getCard(card1.id);
-      const result2 = repository.getCard(card1.id);
+      const result1 = repository.readCard(card1.id);
+      const result2 = repository.readCard(card1.id);
 
       assert.notStrictEqual(result1, result2);
     });
@@ -159,7 +159,7 @@ describe("repository", () => {
 
     it("should change the repository", () => {
       repository.updateCard(card1Changed);
-      const foundCard = repository.getCard(card1Changed.id);
+      const foundCard = repository.readCard(card1Changed.id);
 
       assert.deepStrictEqual(foundCard, card1Changed);
     });
@@ -167,7 +167,7 @@ describe("repository", () => {
     it("should change the repository persistently", () => {
       repository.updateCard(card1Changed);
       const newRepository = repositoryTools.connect();
-      const foundCard = newRepository.getCard(card1Changed.id);
+      const foundCard = newRepository.readCard(card1Changed.id);
 
       assert.deepStrictEqual(foundCard, card1Changed);
     });

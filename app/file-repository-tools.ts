@@ -20,7 +20,7 @@ export const createFileRepositoryTools = (fileName: string) => {
         writeJsonToFile(data);
       },
 
-      getCard: id => {
+      readCard: id => {
         const hits = data.filter(card => card.id === id);
         if (hits.length > 0) {
           return { ...hits[0] };
