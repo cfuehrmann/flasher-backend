@@ -162,10 +162,18 @@ describe("repository", () => {
       repository.createCard(card0);
     });
 
-    it("should delete existing cards", () => {
+    it("should change the repository", () => {
       repository.deleteCard(card0.id);
 
-      const foundCard = repository.readCard(card1Changed.id);
+      const foundCard = repository.readCard(card0.id);
+      assert.strictEqual(undefined, foundCard);
+    });
+
+    it("should change the repository persistently", () => {
+      repository.deleteCard(card0.id);
+
+      const newRepository = repositoryTools.connect();
+      const foundCard = newRepository.readCard(card0.id);
       assert.strictEqual(undefined, foundCard);
     });
 

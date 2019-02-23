@@ -57,6 +57,7 @@ export const createFileRepositoryTools = (fileName: string) => {
 
       deleteCard: id => {
         data = data.filter(card => card.id !== id);
+        writeJsonToFile(data);
         return true; // leave open for later if we want to return false when the record does not exist
       },
 
