@@ -157,6 +157,23 @@ describe("repository", () => {
     // Todo: what if e.g. card from createCard is changed?
   });
 
+  describe("delete", () => {
+    beforeEach(() => {
+      repository.createCard(card0);
+    });
+
+    it("should delete existing cards", () => {
+      repository.deleteCard(card0.id);
+
+      const foundCard = repository.readCard(card1Changed.id);
+      assert.strictEqual(undefined, foundCard);
+    });
+
+    it("should not crash on non-existing cards", () => {
+      repository.deleteCard(card1.id);
+    });
+  });
+
   describe("findCards", () => {
     beforeEach(() => {
       repository.createCard(card0);
