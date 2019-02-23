@@ -73,7 +73,7 @@ describe("domainLogic", () => {
     });
   });
 
-  describe("card", () => {
+  describe("readCard", () => {
     it("should return repository result", () => {
       const logic = domainLogic(
         {
@@ -84,7 +84,7 @@ describe("domainLogic", () => {
         () => "someId",
       );
 
-      const result = logic.card({ id: "42" });
+      const result = logic.readCard({ id: "42" });
 
       assert.strictEqual(result, cardObjectReference);
     });

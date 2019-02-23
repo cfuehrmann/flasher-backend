@@ -26,7 +26,7 @@ export const domainLogic = (
       });
     },
 
-    card: ({ id }: { id: string }) => repository.readCard(id),
+    readCard: ({ id }: { id: string }) => repository.readCard(id),
 
     updateCard: ({
       id,

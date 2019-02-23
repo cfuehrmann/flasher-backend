@@ -107,49 +107,6 @@ describe("repository", () => {
     });
   });
 
-  describe("findCards", () => {
-    beforeEach(() => {
-      repository.createCard(card0);
-      repository.createCard(card1);
-      repository.createCard(card2);
-    });
-
-    it("should return cards whose prompts contain substring", () => {
-      const result = repository.findCards("rOmptA");
-
-      const lookup: { [key: string]: Card } = {};
-
-      for (const record of result) {
-        lookup[record.id] = record;
-      }
-
-      assert.strictEqual(Object.keys(lookup).length, 2);
-      assert.deepStrictEqual(lookup["0"], card0);
-      assert.deepStrictEqual(lookup["1"], card1);
-    });
-
-    it("should return cards whose solution contain substring", () => {
-      const result = repository.findCards("tionB");
-
-      const lookup: { [key: string]: Card } = {};
-
-      for (const record of result) {
-        lookup[record.id] = record;
-      }
-
-      assert.strictEqual(Object.keys(lookup).length, 2);
-      assert.deepStrictEqual(lookup["1"], card1);
-      assert.deepStrictEqual(lookup["2"], card2);
-    });
-
-    it("should return copies", () => {
-      const result1 = repository.findCards("promptB");
-      const result2 = repository.findCards("promptB");
-
-      assert.notStrictEqual(result1[0], result2[0]);
-    });
-  });
-
   describe("updateCard", () => {
     beforeEach(() => {
       repository.createCard(card0);
@@ -198,6 +155,49 @@ describe("repository", () => {
     });
 
     // Todo: what if e.g. card from createCard is changed?
+  });
+
+  describe("findCards", () => {
+    beforeEach(() => {
+      repository.createCard(card0);
+      repository.createCard(card1);
+      repository.createCard(card2);
+    });
+
+    it("should return cards whose prompts contain substring", () => {
+      const result = repository.findCards("rOmptA");
+
+      const lookup: { [key: string]: Card } = {};
+
+      for (const record of result) {
+        lookup[record.id] = record;
+      }
+
+      assert.strictEqual(Object.keys(lookup).length, 2);
+      assert.deepStrictEqual(lookup["0"], card0);
+      assert.deepStrictEqual(lookup["1"], card1);
+    });
+
+    it("should return cards whose solution contain substring", () => {
+      const result = repository.findCards("tionB");
+
+      const lookup: { [key: string]: Card } = {};
+
+      for (const record of result) {
+        lookup[record.id] = record;
+      }
+
+      assert.strictEqual(Object.keys(lookup).length, 2);
+      assert.deepStrictEqual(lookup["1"], card1);
+      assert.deepStrictEqual(lookup["2"], card2);
+    });
+
+    it("should return copies", () => {
+      const result1 = repository.findCards("promptB");
+      const result2 = repository.findCards("promptB");
+
+      assert.notStrictEqual(result1[0], result2[0]);
+    });
   });
 
   describe("findNextCard", () => {
