@@ -28,9 +28,6 @@ export const domainLogic = (
 
     card: ({ id }: { id: string }) => repository.getCard(id),
 
-    cards: ({ substring }: { substring: string }) =>
-      repository.findCards(substring),
-
     updateCard: ({
       id,
       prompt,
@@ -61,6 +58,11 @@ export const domainLogic = (
         nextTime: addMinutes(now, 30),
       });
     },
+
+    deleteCard: ({ id }: { id: string }) => repository.deleteCard(id),
+
+    cards: ({ substring }: { substring: string }) =>
+      repository.findCards(substring),
 
     findNextCard: () => repository.findNextCard(getTime()),
 

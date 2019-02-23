@@ -11,10 +11,13 @@ describe("domainLogic", () => {
     getCard: id => {
       throw new Error();
     },
-    findCards: substring => {
+    updateCard: card => {
       throw new Error();
     },
-    updateCard: card => {
+    deleteCard: id => {
+      throw new Error();
+    },
+    findCards: substring => {
       throw new Error();
     },
     findNextCard: time => {
@@ -32,7 +35,7 @@ describe("domainLogic", () => {
     state: "Ok",
   };
 
-  it("creation should not crash", () => {
+  it("constructor should not crash", () => {
     domainLogic(unImplementedRepo, () => new Date(), () => "someId");
   });
 
@@ -84,25 +87,6 @@ describe("domainLogic", () => {
       const result = logic.card({ id: "42" });
 
       assert.strictEqual(result, cardObjectReference);
-    });
-  });
-
-  describe("cards", () => {
-    it("should return repository result", () => {
-      const repositoryResult = [cardObjectReference];
-      const logic = domainLogic(
-        {
-          ...unImplementedRepo,
-          findCards: substring =>
-            substring === "ohn smit" ? repositoryResult : [],
-        },
-        () => new Date(),
-        () => "someId",
-      );
-
-      const result = logic.cards({ substring: "ohn smit" });
-
-      assert.strictEqual(result, repositoryResult);
     });
   });
 
@@ -174,6 +158,42 @@ describe("domainLogic", () => {
         nextTime: addMinutes(setup.now, 30),
       } as CardUpdate);
       assert.strictEqual(result, cardObjectReference);
+    });
+  });
+
+  describe("deleteCard", () => {
+    it("should use repository method, no more, no less", () => {
+      const logic = domainLogic(
+        {
+          ...unImplementedRepo,
+          deleteCard: id => id === "42",
+        },
+        () => new Date(),
+        () => "someId",
+      );
+
+      const result = logic.deleteCard({ id: "42" });
+
+      assert.strictEqual(true, result);
+    });
+  });
+
+  describe("cards", () => {
+    it("should return repository result", () => {
+      const repositoryResult = [cardObjectReference];
+      const logic = domainLogic(
+        {
+          ...unImplementedRepo,
+          findCards: substring =>
+            substring === "ohn smit" ? repositoryResult : [],
+        },
+        () => new Date(),
+        () => "someId",
+      );
+
+      const result = logic.cards({ substring: "ohn smit" });
+
+      assert.strictEqual(result, repositoryResult);
     });
   });
 

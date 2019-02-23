@@ -9,6 +9,7 @@ export const schema = buildSchema(`
     type Mutation {
       createCard(prompt: String!, solution: String!): Boolean
       updateCard(id: ID!, prompt: String, solution: String, isMinor: Boolean): Card
+      deleteCard(id: ID!): Boolean
       setOk(id: ID!): Boolean
       setFailed(id: ID!): Boolean
     },

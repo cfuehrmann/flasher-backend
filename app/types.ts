@@ -1,8 +1,9 @@
 export type Repository = {
   createCard(card: Readonly<Card>): void;
   getCard(id: string): Card | undefined;
-  findCards(substring: string): Card[];
   updateCard(update: Readonly<CardUpdate>): Card | undefined;
+  deleteCard(id: string): boolean;
+  findCards(substring: string): Card[];
   findNextCard(time: Date): Card | undefined;
 };
 

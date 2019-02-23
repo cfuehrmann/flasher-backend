@@ -8,7 +8,7 @@ export const createFileRepositoryTools = (fileName: string) => {
 
   function connect(): Repository {
     const json = fs.readFileSync(fileName).toString();
-    const data = JSON.parse(json, reviver) as Card[]; // Todo: runtime check if the type assertion is correct?
+    let data = JSON.parse(json, reviver) as Card[]; // Todo: runtime check if the type assertion is correct?
 
     return {
       createCard: card => {
@@ -26,15 +26,6 @@ export const createFileRepositoryTools = (fileName: string) => {
           return { ...hits[0] };
         }
       },
-
-      findCards: substring =>
-        data
-          .filter(
-            card =>
-              card.prompt.toLowerCase().includes(substring.toLowerCase()) ||
-              card.solution.toLowerCase().includes(substring.toLowerCase()),
-          )
-          .map(card => ({ ...card })),
 
       updateCard: ({ id, prompt, solution, state, changeTime, nextTime }) => {
         for (const card of data) {
@@ -63,6 +54,20 @@ export const createFileRepositoryTools = (fileName: string) => {
           return { ...card };
         }
       },
+
+      deleteCard: id => {
+        data = data.filter(card => card.id !== id);
+        return true; // leave open for later if we want to return false when the record does not exist
+      },
+
+      findCards: substring =>
+        data
+          .filter(
+            card =>
+              card.prompt.toLowerCase().includes(substring.toLowerCase()) ||
+              card.solution.toLowerCase().includes(substring.toLowerCase()),
+          )
+          .map(card => ({ ...card })),
 
       findNextCard: time =>
         data
