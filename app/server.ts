@@ -2,6 +2,7 @@ import * as cors from "cors";
 import * as express from "express";
 import * as expressGraphQL from "express-graphql";
 import { v4 as uuidV4 } from "uuid";
+
 import { domainLogic } from "./domain-logic";
 import { repositoryTools } from "./production-config";
 import { schema } from "./schema";

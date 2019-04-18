@@ -1,5 +1,7 @@
 import * as assert from "assert";
+
 import { Card, Repository } from "../app/types";
+
 import { repositoryTools } from "./test-config";
 
 const card0 = Object.freeze<Card>({
