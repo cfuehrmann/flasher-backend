@@ -28,7 +28,15 @@ export const createFileRepositoryTools = (fileName: string) => {
         }
       },
 
-      updateCard: ({ id, prompt, solution, state, changeTime, nextTime }) => {
+      updateCard: ({
+        id,
+        prompt,
+        solution,
+        state,
+        changeTime,
+        nextTime,
+        disabled,
+      }) => {
         for (const card of data) {
           if (card.id !== id) {
             continue;
@@ -48,6 +56,9 @@ export const createFileRepositoryTools = (fileName: string) => {
           }
           if (nextTime !== undefined) {
             card.nextTime = nextTime;
+          }
+          if (disabled !== undefined) {
+            card.disabled = disabled;
           }
 
           writeJsonToFile(data);
@@ -73,7 +84,7 @@ export const createFileRepositoryTools = (fileName: string) => {
 
       findNextCard: time =>
         data
-          .filter(card => card.nextTime <= time)
+          .filter(card => card.nextTime <= time && !card.disabled)
           .sort(
             (card1, card2) =>
               card1.nextTime.getTime() - card2.nextTime.getTime(),

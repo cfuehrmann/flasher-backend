@@ -16,6 +16,7 @@ type CardUpdatables = {
   state: State;
   changeTime: Date;
   nextTime: Date;
+  disabled: boolean;
 };
 
 export type State = "New" | "Ok" | "Failed";

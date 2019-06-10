@@ -34,6 +34,7 @@ describe("domainLogic", () => {
     changeTime: new Date(),
     nextTime: new Date(),
     state: "Ok",
+    disabled: false,
   };
 
   it("constructor should not crash", () => {
@@ -70,6 +71,7 @@ describe("domainLogic", () => {
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 10),
+        disabled: true,
       } as Card);
     });
   });
@@ -233,6 +235,7 @@ describe("domainLogic", () => {
         state: "New",
         changeTime: subSeconds(now, passedTime),
         nextTime: subSeconds(now, 100),
+        disabled: false,
       };
 
       return {
@@ -294,6 +297,66 @@ describe("domainLogic", () => {
       setup.logic.setFailed({ id: "newUuid" });
 
       assert.strictEqual(setup.repoArgs.updateArg, "uncalled");
+    });
+  });
+
+  describe("enable/disable", () => {
+    const passedTime = 41;
+    const cardId = "someId";
+
+    const getSetup = () => {
+      const repoArgs: { updateArg: CardUpdate | "uncalled" } = {
+        updateArg: "uncalled",
+      };
+      const now = new Date("2018-07-29T17:01:02.345Z");
+      const card: Card = {
+        id: cardId,
+        prompt: "prompt",
+        solution: "solution",
+        state: "New",
+        changeTime: subSeconds(now, passedTime),
+        nextTime: subSeconds(now, 100),
+        disabled: false,
+      };
+
+      return {
+        logic: domainLogic(
+          {
+            ...unImplementedRepo,
+            updateCard: update => {
+              repoArgs.updateArg = update;
+              return cardObjectReference;
+            },
+          },
+          () => now,
+          () => "newUuid",
+        ),
+        repoArgs: repoArgs,
+        now: now,
+        card: card,
+      };
+    };
+
+    it("enable should work correctly when card found", () => {
+      const setup = getSetup();
+
+      setup.logic.enable({ id: cardId });
+
+      assert.deepStrictEqual(setup.repoArgs.updateArg, {
+        id: cardId,
+        disabled: false,
+      });
+    });
+
+    it("disable should work correctly when card found", () => {
+      const setup = getSetup();
+
+      setup.logic.disable({ id: setup.card.id });
+
+      assert.deepStrictEqual(setup.repoArgs.updateArg, {
+        id: cardId,
+        disabled: true,
+      });
     });
   });
 });

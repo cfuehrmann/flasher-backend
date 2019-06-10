@@ -12,6 +12,8 @@ export const schema = buildSchema(`
       deleteCard(id: ID!): Boolean
       setOk(id: ID!): Boolean
       setFailed(id: ID!): Boolean
+      enable(id: ID!): Boolean
+      disable(id: ID!): Boolean
     },
     type Card {
       id: ID!
@@ -20,5 +22,6 @@ export const schema = buildSchema(`
       state: String!
       changeTime: String!
       nextTime: String!
+      disabled: Boolean!
     }
   `);

@@ -11,6 +11,7 @@ const card0 = Object.freeze<Card>({
   state: "New",
   changeTime: new Date("2018-01-01T18:25:24.000"),
   nextTime: new Date("2018-02-01T18:25:24.000"),
+  disabled: false,
 });
 
 const card1 = Object.freeze<Card>({
@@ -20,6 +21,7 @@ const card1 = Object.freeze<Card>({
   state: "Ok",
   changeTime: new Date("2018-01-01T18:25:24.001"),
   nextTime: new Date("2018-02-01T18:25:24.001"),
+  disabled: true,
 });
 
 const card2 = Object.freeze<Card>({
@@ -29,6 +31,7 @@ const card2 = Object.freeze<Card>({
   state: "Failed",
   changeTime: new Date("2018-01-01T18:25:24.002"),
   nextTime: new Date("2018-02-01T18:25:24.002"),
+  disabled: true,
 });
 
 const card1Changed = Object.freeze<Card>({
@@ -38,6 +41,7 @@ const card1Changed = Object.freeze<Card>({
   state: "Failed",
   changeTime: new Date("2018-01-01T18:25:24.003"),
   nextTime: new Date("2018-02-01T18:25:24.003"),
+  disabled: false,
 });
 
 let repository: Repository;
@@ -236,6 +240,12 @@ describe("repository", () => {
     beforeEach(() => {
       repository.createCard({
         ...card0,
+        id: "9",
+        nextTime: new Date("2018-01-01T18:25:23.999"),
+        disabled: true,
+      });
+      repository.createCard({
+        ...card0,
         id: "1",
         nextTime: new Date("2018-01-01T18:25:24.001"),
       });
@@ -252,7 +262,7 @@ describe("repository", () => {
       });
     });
 
-    it("should return next card when found", () => {
+    it("should return next enabled card when found", () => {
       const result = repository.findNextCard(
         new Date("2018-01-01T18:25:24.002"),
       );
@@ -260,7 +270,7 @@ describe("repository", () => {
       assert.deepStrictEqual(result, nextCard);
     });
 
-    it("should return next card when just found", () => {
+    it("should return next enabled card when just found", () => {
       const result = repository.findNextCard(
         new Date("2018-01-01T18:25:24.000"),
       );

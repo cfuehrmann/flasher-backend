@@ -24,6 +24,7 @@ export const domainLogic = (
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 10),
+        disabled: true,
       });
     },
 
@@ -73,6 +74,20 @@ export const domainLogic = (
 
     setFailed: ({ id }: { id: string }) => {
       setState(id, "Failed", passedTime => Math.floor(passedTime / 2));
+    },
+
+    enable: ({ id }: { id: string }) => {
+      repository.updateCard({
+        id: id,
+        disabled: false,
+      });
+    },
+
+    disable: ({ id }: { id: string }) => {
+      repository.updateCard({
+        id: id,
+        disabled: true,
+      });
     },
   };
 
