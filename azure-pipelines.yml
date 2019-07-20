@@ -21,8 +21,8 @@ steps:
   - script: yarn build
     displayName: "Run the build script"
 
-  - script: yarn test
-    displayName: "Run the test script"
-
   - script: yarn lint
     displayName: "Run the lint script"
+
+  - script: yarn test
+    displayName: "Run the test script"
