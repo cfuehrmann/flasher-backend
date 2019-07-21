@@ -26,6 +26,3 @@ steps:
 
   - script: yarn lint
     displayName: "Run the lint script"
-
-  - script: yarn audit
-    displayName: "Run an audit"
