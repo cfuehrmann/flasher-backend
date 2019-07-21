@@ -1,6 +1,6 @@
 import { addMinutes, addSeconds, differenceInSeconds } from "date-fns";
 
-import { State, Repository } from "./types";
+import { Repository, State } from "./types";
 
 export const domainLogic = (
   repository: Repository,
