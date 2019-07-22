@@ -42,22 +42,22 @@ export const createFileRepositoryTools = (fileName: string) => {
             continue;
           }
 
-          if (prompt !== undefined) {
+          if (typeof prompt !== "undefined") {
             card.prompt = prompt;
           }
-          if (solution !== undefined) {
+          if (typeof solution !== "undefined") {
             card.solution = solution;
           }
-          if (state !== undefined) {
+          if (typeof state !== "undefined") {
             card.state = state;
           }
-          if (changeTime !== undefined) {
+          if (typeof changeTime !== "undefined") {
             card.changeTime = changeTime;
           }
-          if (nextTime !== undefined) {
+          if (typeof nextTime !== "undefined") {
             card.nextTime = nextTime;
           }
-          if (disabled !== undefined) {
+          if (typeof disabled !== "undefined") {
             card.disabled = disabled;
           }
 
@@ -84,6 +84,7 @@ export const createFileRepositoryTools = (fileName: string) => {
 
       findNextCard: time =>
         data
+          // tslint:disable-next-line: strict-comparisons
           .filter(card => card.nextTime <= time && !card.disabled)
           .sort(
             (card1, card2) =>

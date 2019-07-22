@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { addMinutes, addSeconds, subSeconds } from "date-fns";
+import { addMinutes, addSeconds, isEqual, subSeconds } from "date-fns";
 
 import { domainLogic } from "../app/domain-logic";
 import { Card, CardUpdate, Repository } from "../app/types";
@@ -207,7 +207,7 @@ describe("domainLogic", () => {
         {
           ...unImplementedRepo,
           findNextCard: time =>
-            time === now ? cardObjectReference : undefined,
+            isEqual(time, now) ? cardObjectReference : undefined,
         },
         () => now,
         () => "someId",
