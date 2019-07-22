@@ -98,7 +98,7 @@ export const domainLogic = (
   ) {
     const card = repository.readCard(id);
 
-    if (card === undefined) {
+    if (typeof card === "undefined") {
       return;
     }
 
