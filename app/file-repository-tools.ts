@@ -5,7 +5,7 @@ import { Card, Repository } from "./types";
 export const createFileRepositoryTools = (fileName: string) => {
   const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 
-  return { connect: connect, createEmptyRepository: createEmptyRepository };
+  return { connect, createEmptyRepository };
 
   function connect(): Repository {
     const json = fs.readFileSync(fileName).toString();
