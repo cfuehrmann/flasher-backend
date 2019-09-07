@@ -2,6 +2,7 @@ import { buildSchema } from "graphql";
 
 export const schema = buildSchema(`
     type Query {
+      login(userName: String!, password: String!) : String
       readCard(id: ID!): Card
       cards(substring: String!): [Card]
       findNextCard: Card

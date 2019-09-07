@@ -66,7 +66,7 @@ describe("domainLogic", () => {
 
       // Assert
       assert.deepStrictEqual(repoArgs.createCardArg, {
-        id: id,
+        id,
         ...arg,
         state: "New",
         changeTime: now,
@@ -111,8 +111,8 @@ describe("domainLogic", () => {
           () => now,
           () => "newUuid",
         ),
-        repoArgs: repoArgs,
-        now: now,
+        repoArgs,
+        now,
       };
     };
 
@@ -251,9 +251,9 @@ describe("domainLogic", () => {
           () => now,
           () => "newUuid",
         ),
-        repoArgs: repoArgs,
-        now: now,
-        card: card,
+        repoArgs,
+        now,
+        card,
       };
     };
 
@@ -331,9 +331,9 @@ describe("domainLogic", () => {
           () => now,
           () => "newUuid",
         ),
-        repoArgs: repoArgs,
-        now: now,
-        card: card,
+        repoArgs,
+        now,
+        card,
       };
     };
 

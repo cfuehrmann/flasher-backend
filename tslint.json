@@ -15,7 +15,6 @@
       ]
     },
     "file-name-casing": [true, "kebab-case"],
-    "object-literal-shorthand": [true, "never"], // the shorthand obstructs renaming
     "comment-format": [true, "check-space"], // no check of upper or lower case, because impractical e.g. with multi-line comments
     "no-magic-numbers": false,
     "newline-before-return": false,
@@ -26,7 +25,8 @@
     "no-unused-variable": false,
     "completed-docs": false,
     "strict-type-predicates": false, // Not working with type "unknown"
-    "no-object-literal-type-assertion": false
+    "no-object-literal-type-assertion": false,
+    "no-unsafe-any": false // because the fix requires lying with an "as"-statement, or maybe an awkward type guard
   },
   "rulesDirectory": []
 }

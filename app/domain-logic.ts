@@ -19,8 +19,8 @@ export const domainLogic = (
 
       repository.createCard({
         id: createUuid(),
-        prompt: prompt,
-        solution: solution,
+        prompt,
+        solution,
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 10),
@@ -43,18 +43,18 @@ export const domainLogic = (
     }) => {
       if (isMinor) {
         return repository.updateCard({
-          id: id,
-          prompt: prompt,
-          solution: solution,
+          id,
+          prompt,
+          solution,
         });
       }
 
       const now = getTime();
 
       return repository.updateCard({
-        id: id,
-        prompt: prompt,
-        solution: solution,
+        id,
+        prompt,
+        solution,
         state: "New",
         changeTime: now,
         nextTime: addMinutes(now, 30),
@@ -78,14 +78,14 @@ export const domainLogic = (
 
     enable: ({ id }: { id: string }) => {
       repository.updateCard({
-        id: id,
+        id,
         disabled: false,
       });
     },
 
     disable: ({ id }: { id: string }) => {
       repository.updateCard({
-        id: id,
+        id,
         disabled: true,
       });
     },
@@ -106,8 +106,8 @@ export const domainLogic = (
     const passedTime = differenceInSeconds(now, card.changeTime);
 
     repository.updateCard({
-      id: id,
-      state: state,
+      id,
+      state,
       changeTime: now,
       nextTime: addSeconds(now, getTimeToWait(passedTime)),
     });

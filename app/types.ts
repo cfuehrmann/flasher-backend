@@ -7,6 +7,10 @@ export type Repository = {
   findNextCard(time: Date): Card | undefined;
 };
 
+export type CredentialsRepository = {
+  getPasswordHash(userName: string): string | undefined;
+};
+
 export type Card = { id: string } & CardUpdatables;
 export type CardUpdate = { id: string } & Partial<CardUpdatables>;
 
