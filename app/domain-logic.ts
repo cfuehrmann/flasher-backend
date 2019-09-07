@@ -2,11 +2,13 @@ import { addMinutes, addSeconds, differenceInSeconds } from "date-fns";
 
 import { Repository, State } from "./types";
 
-export const domainLogic = (
-  repository: Repository,
-  getTime: () => Date,
-  createUuid: () => string,
-) => {
+export type Dependencies = {
+  repository: Repository;
+  getTime: () => Date;
+  createUuid: () => string;
+};
+
+export const create = ({ repository, getTime, createUuid }: Dependencies) => {
   return {
     createCard: ({
       prompt,

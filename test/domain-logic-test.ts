@@ -1,11 +1,11 @@
 import * as assert from "assert";
 import { addMinutes, addSeconds, isEqual, subSeconds } from "date-fns";
 
-import { domainLogic } from "../app/domain-logic";
+import * as domainLogic from "../app/domain-logic";
 import { Card, CardUpdate, Repository } from "../app/types";
 
-describe("domainLogic", () => {
-  const unImplementedRepo: Repository = {
+const dependencies: domainLogic.Dependencies = {
+  repository: {
     createCard: card => {
       throw new Error();
     },
@@ -24,21 +24,29 @@ describe("domainLogic", () => {
     findNextCard: time => {
       throw new Error();
     },
-  };
+  },
+  getTime: () => {
+    throw new Error();
+  },
+  createUuid: () => {
+    throw new Error();
+  },
+};
 
-  // A card that is only ever checked as an object reference
-  const cardObjectReference: Card = {
-    id: "",
-    prompt: "",
-    solution: "",
-    changeTime: new Date(),
-    nextTime: new Date(),
-    state: "Ok",
-    disabled: false,
-  };
+// A card that is only ever checked as an object reference
+const cardObjectReference: Card = {
+  id: "",
+  prompt: "",
+  solution: "",
+  changeTime: new Date(),
+  nextTime: new Date(),
+  state: "Ok",
+  disabled: false,
+};
 
-  it("constructor should not crash", () => {
-    domainLogic(unImplementedRepo, () => new Date(), () => "someId");
+describe("domainLogic", () => {
+  it("create should not crash", () => {
+    domainLogic.create(dependencies);
   });
 
   describe("createCard", () => {
@@ -49,16 +57,16 @@ describe("domainLogic", () => {
       };
       const now = new Date("2018-07-29T17:01:02.345Z");
       const id = "d9f77655-c17e-43a5-a7be-997a01d65c37";
-      const logic = domainLogic(
-        {
-          ...unImplementedRepo,
+      const logic = domainLogic.create({
+        repository: {
+          ...dependencies.repository,
           createCard: card => {
             repoArgs.createCardArg = card;
           },
         },
-        () => now,
-        () => id,
-      );
+        getTime: () => now,
+        createUuid: () => id,
+      });
       const arg = { prompt: "prompt", solution: "solution" };
 
       // Act
@@ -78,14 +86,13 @@ describe("domainLogic", () => {
 
   describe("readCard", () => {
     it("should return repository result", () => {
-      const logic = domainLogic(
-        {
-          ...unImplementedRepo,
+      const logic = domainLogic.create({
+        ...dependencies,
+        repository: {
+          ...dependencies.repository,
           readCard: id => (id === "42" ? cardObjectReference : undefined),
         },
-        () => new Date(),
-        () => "someId",
-      );
+      });
 
       const result = logic.readCard({ id: "42" });
 
@@ -100,17 +107,17 @@ describe("domainLogic", () => {
       };
       const now = new Date("2018-07-29T17:01:02.345Z");
       return {
-        logic: domainLogic(
-          {
-            ...unImplementedRepo,
+        logic: domainLogic.create({
+          ...dependencies,
+          repository: {
+            ...dependencies.repository,
             updateCard: update => {
               repoArgs.updateArg = update;
               return cardObjectReference;
             },
           },
-          () => now,
-          () => "newUuid",
-        ),
+          getTime: () => now,
+        }),
         repoArgs,
         now,
       };
@@ -166,14 +173,13 @@ describe("domainLogic", () => {
 
   describe("deleteCard", () => {
     it("should use repository method, no more, no less", () => {
-      const logic = domainLogic(
-        {
-          ...unImplementedRepo,
+      const logic = domainLogic.create({
+        ...dependencies,
+        repository: {
+          ...dependencies.repository,
           deleteCard: id => id === "42",
         },
-        () => new Date(),
-        () => "someId",
-      );
+      });
 
       const result = logic.deleteCard({ id: "42" });
 
@@ -184,15 +190,14 @@ describe("domainLogic", () => {
   describe("cards", () => {
     it("should return repository result", () => {
       const repositoryResult = [cardObjectReference];
-      const logic = domainLogic(
-        {
-          ...unImplementedRepo,
+      const logic = domainLogic.create({
+        ...dependencies,
+        repository: {
+          ...dependencies.repository,
           findCards: substring =>
             substring === "ohn smit" ? repositoryResult : [],
         },
-        () => new Date(),
-        () => "someId",
-      );
+      });
 
       const result = logic.cards({ substring: "ohn smit" });
 
@@ -203,15 +208,15 @@ describe("domainLogic", () => {
   describe("findNextCard", () => {
     it("should return repository result", () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
-      const logic = domainLogic(
-        {
-          ...unImplementedRepo,
+      const logic = domainLogic.create({
+        ...dependencies,
+        repository: {
+          ...dependencies.repository,
           findNextCard: time =>
             isEqual(time, now) ? cardObjectReference : undefined,
         },
-        () => now,
-        () => "someId",
-      );
+        getTime: () => now,
+      });
 
       const result = logic.findNextCard();
 
@@ -239,18 +244,18 @@ describe("domainLogic", () => {
       };
 
       return {
-        logic: domainLogic(
-          {
-            ...unImplementedRepo,
+        logic: domainLogic.create({
+          ...dependencies,
+          repository: {
+            ...dependencies.repository,
             readCard: id => (id === card.id ? card : undefined),
             updateCard: update => {
               repoArgs.updateArg = update;
               return cardObjectReference;
             },
           },
-          () => now,
-          () => "newUuid",
-        ),
+          getTime: () => now,
+        }),
         repoArgs,
         now,
         card,
@@ -320,17 +325,17 @@ describe("domainLogic", () => {
       };
 
       return {
-        logic: domainLogic(
-          {
-            ...unImplementedRepo,
+        logic: domainLogic.create({
+          ...dependencies,
+          repository: {
+            ...dependencies.repository,
             updateCard: update => {
               repoArgs.updateArg = update;
               return cardObjectReference;
             },
           },
-          () => now,
-          () => "newUuid",
-        ),
+          getTime: () => now,
+        }),
         repoArgs,
         now,
         card,

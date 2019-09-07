@@ -5,9 +5,9 @@ import * as expressGraphQL from "express-graphql";
 import * as jwt from "express-jwt";
 import * as fs from "fs";
 import * as jsonwebtoken from "jsonwebtoken";
-import { v4 as uuidV4 } from "uuid";
+import * as uuid from "uuid";
 
-import { domainLogic } from "./domain-logic";
+import * as domainLogic from "./domain-logic";
 import * as loginTool from "./login-tool";
 import {
   credentialsRepositoryTools,
@@ -58,12 +58,15 @@ function getRoot() {
   const jsonWebTokenSigner = (payload: {}) =>
     jsonwebtoken.sign(payload, privateKey, { algorithm: "RS256" });
 
+  const getTime = () => new Date();
+  const createUuid = uuid.v4;
+
   return {
     ...loginTool.create({
       credentialsRepository,
       hashComparer,
       jsonWebTokenSigner,
     }),
-    ...domainLogic(repository, () => new Date(), uuidV4),
+    ...domainLogic.create({ repository, getTime, createUuid }),
   };
 }
