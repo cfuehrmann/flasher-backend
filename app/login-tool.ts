@@ -15,7 +15,12 @@ export const create = ({
   hashComparer,
   jsonWebTokenSigner,
 }: Dependencies) => ({
-  login: async ({ userName, password }: Credentials) => {
+  login: async (
+    parent: unknown,
+    { userName, password }: Credentials,
+    context: unknown,
+    info: unknown,
+  ) => {
     const passwordHash = credentialsRepository.getPasswordHash(userName);
 
     if (passwordHash !== undefined) {
