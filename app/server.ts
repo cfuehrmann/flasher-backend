@@ -73,11 +73,10 @@ const server = new ApolloServer({
   `,
   resolvers: {
     Query: {
-      login: (parent, args, context, info) =>
-        root.login(parent, args, context, info),
-      readCard: root.readCard,
-      cards: root.cards,
-      findNextCard: root.findNextCard,
+      login: (parent, args, context, info) => root.login(args),
+      readCard: (parent, args, context, info) => root.readCard(args),
+      cards: (parent, args, context, info) => root.cards(args),
+      findNextCard: (parent, args, context, info) => root.findNextCard(),
     },
     Mutation: {
       createCard: root.createCard,
@@ -93,12 +92,12 @@ const server = new ApolloServer({
     res,
   }),
   formatResponse: (a: any, b: any) => {
-    if (a.data.login) {
-      b.context.res.cookie("cookieName", a.data.login, {
-        maxAge: 900000,
-        //, httpOnly: true
-      });
-    }
+    // if (a.data.login) {
+    b.context.res.cookie("cookieName", "foo", {
+      maxAge: 900000,
+      //, httpOnly: true
+    });
+    // }
   },
 });
 
