@@ -68,7 +68,10 @@ export const create = ({ repository, getTime, createUuid }: Dependencies) => {
     cards: ({ substring }: { substring: string }) =>
       repository.findCards(substring),
 
-    findNextCard: () => repository.findNextCard(getTime()),
+    findNextCard: (context: { user: string }) => {
+      console.log(context.user);
+      return repository.findNextCard(getTime());
+    },
 
     setOk: ({ id }: { id: string }) => {
       setState(id, "Ok", passedTime => passedTime * 2);

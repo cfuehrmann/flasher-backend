@@ -1,8 +1,5 @@
 import { ApolloServer, gql } from "apollo-server";
 import * as bcrypt from "bcrypt";
-import * as bodyParser from "body-parser";
-// import express from "express";
-import * as jwt from "express-jwt";
 import * as fs from "fs";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as uuid from "uuid";
@@ -15,19 +12,7 @@ import {
 } from "./production-config";
 import { schema } from "./schema";
 
-// const app = express();
-
-// app.use("/graphql", bodyParser.json());
-// app.use(bodyParser.json());
-
 const secret = fs.readFileSync(__dirname + "/../mount/public.key");
-
-// Enable the code below to enforce authentication
-// app.use(
-//   jwt({ secret, algorithms: ["RS256"] }).unless(req =>
-//     req.body.query.startsWith("query login"),
-//   ),
-// );
 
 // // To avoid sending the call stack to the client
 // app.use(((
@@ -73,10 +58,10 @@ const server = new ApolloServer({
   `,
   resolvers: {
     Query: {
-      login: (parent, args, context, info) => root.login(args),
+      login: (parent, args, context, info) => root.login(args, context),
       readCard: (parent, args, context, info) => root.readCard(args),
       cards: (parent, args, context, info) => root.cards(args),
-      findNextCard: (parent, args, context, info) => root.findNextCard(),
+      findNextCard: (parent, args, context, info) => root.findNextCard(context),
     },
     Mutation: {
       createCard: root.createCard,
@@ -88,36 +73,28 @@ const server = new ApolloServer({
       disable: root.disable,
     },
   },
-  context: ({ req, res }) => ({
-    res,
-  }),
-  formatResponse: (
-    a: unknown,
-    b: {
-      context: { res: { cookie: (x: string, y: string, z: {}) => unknown } };
-    },
-  ) => {
-    // if (a.data.login) {
-    b.context.res.cookie("cookieName", "foo", {
-      maxAge: 900000,
-      // , httpOnly: true
-    });
-    // }
+  context: ({ req, res }) => {
+    const cookie = req.headers.cookie;
+
+    if (cookie !== undefined) {
+      const token = cookie.split("=")[1];
+      const decodedToken = jsonwebtoken.verify(token, secret, {
+        algorithms: ["RS256"],
+      });
+
+      if (typeof decodedToken === "object") {
+        return {
+          res,
+          user: (decodedToken as { sub: unknown }).sub,
+        };
+      }
+    }
+
+    return {
+      res,
+    };
   },
 });
-
-// app.use(function(req, res, next) {
-//   // no: set a new cookie
-//   res.cookie("cookieName", "foo", { maxAge: 900000, httpOnly: true });
-//   console.log("cookie created successfully");
-//   next(); // <-- important!
-// });
-
-// server.applyMiddleware({ app, path: "/graphql" });
-
-// app.listen(4000, () => {
-//   console.log(`Express GraphQL Server Now Running On localhost:4000${server.graphqlPath}`);
-// });
 
 server
   .listen()

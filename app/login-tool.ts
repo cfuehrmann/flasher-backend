@@ -15,14 +15,23 @@ export const create = ({
   hashComparer,
   jsonWebTokenSigner,
 }: Dependencies) => ({
-  login: async ({ userName, password }: Credentials) => {
+  login: async (
+    { userName, password }: Credentials,
+    context: { res: { cookie: (x: string, y: string, z: {}) => unknown } },
+  ) => {
     const passwordHash = credentialsRepository.getPasswordHash(userName);
 
     if (passwordHash !== undefined) {
       const success = await hashComparer(password, passwordHash);
 
       if (success) {
-        return jsonWebTokenSigner({ sub: userName });
+        const token = jsonWebTokenSigner({ sub: userName });
+        context.res.cookie("jwt", token, {
+          maxAge: 900000,
+          httpOnly: true,
+        });
+
+        return token;
       }
     }
 
