@@ -88,14 +88,19 @@ const server = new ApolloServer({
       disable: root.disable,
     },
   },
-  context: ({ req, res }: any) => ({
+  context: ({ req, res }) => ({
     res,
   }),
-  formatResponse: (a: any, b: any) => {
+  formatResponse: (
+    a: unknown,
+    b: {
+      context: { res: { cookie: (x: string, y: string, z: {}) => unknown } };
+    },
+  ) => {
     // if (a.data.login) {
     b.context.res.cookie("cookieName", "foo", {
       maxAge: 900000,
-      //, httpOnly: true
+      // , httpOnly: true
     });
     // }
   },
@@ -114,9 +119,12 @@ const server = new ApolloServer({
 //   console.log(`Express GraphQL Server Now Running On localhost:4000${server.graphqlPath}`);
 // });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+server
+  .listen()
+  .then(({ url }) => {
+    console.log(`🚀  Server ready at ${url}`);
+  })
+  .catch(() => undefined);
 
 function getRoot() {
   const credentialsRepository = credentialsRepositoryTools.connect();
