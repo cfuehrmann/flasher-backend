@@ -1,4 +1,4 @@
-import { ApolloServer, gql } from "apollo-server";
+import { ApolloServer } from "apollo-server";
 import * as bcrypt from "bcrypt";
 import * as fs from "fs";
 import * as jsonwebtoken from "jsonwebtoken";
@@ -25,43 +25,13 @@ const secret = fs.readFileSync(__dirname + "/../mount/public.key");
 const root = getRoot();
 
 const server = new ApolloServer({
-  typeDefs: gql`
-    type Query {
-      login(userName: String!, password: String!): String
-      readCard(id: ID!): Card
-      cards(substring: String!): [Card]
-      findNextCard: Card
-    }
-    type Mutation {
-      createCard(prompt: String!, solution: String!): Boolean
-      updateCard(
-        id: ID!
-        prompt: String
-        solution: String
-        isMinor: Boolean
-      ): Card
-      deleteCard(id: ID!): Boolean
-      setOk(id: ID!): Boolean
-      setFailed(id: ID!): Boolean
-      enable(id: ID!): Boolean
-      disable(id: ID!): Boolean
-    }
-    type Card {
-      id: ID!
-      prompt: String!
-      solution: String
-      state: String!
-      changeTime: String!
-      nextTime: String!
-      disabled: Boolean!
-    }
-  `,
+  typeDefs: schema,
   resolvers: {
     Query: {
-      login: (parent, args, context, info) => root.login(args, context),
-      readCard: (parent, args, context, info) => root.readCard(args),
-      cards: (parent, args, context, info) => root.cards(args),
-      findNextCard: (parent, args, context, info) => root.findNextCard(context),
+      login: (parent, args, context) => root.login(args, context),
+      readCard: (parent, args, context) => root.readCard(args),
+      cards: (parent, args, context) => root.cards(args),
+      findNextCard: (parent, args, context) => root.findNextCard(context),
     },
     Mutation: {
       createCard: root.createCard,
