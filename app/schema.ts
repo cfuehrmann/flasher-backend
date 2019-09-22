@@ -2,7 +2,7 @@ import { gql } from "apollo-server";
 
 export const schema = gql`
   type Query {
-    login(userName: String!, password: String!): String
+    login(userName: String!, password: String!): Boolean
     readCard(id: ID!): Card
     cards(substring: String!): [Card]
     findNextCard: Card

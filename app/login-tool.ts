@@ -26,12 +26,13 @@ export const create = ({
 
       if (success) {
         const token = jsonWebTokenSigner({ sub: userName });
+
         cookieSetter("jwt", token, {
           maxAge: 900000,
           httpOnly: true,
         });
 
-        return token;
+        return true;
       }
     }
 
