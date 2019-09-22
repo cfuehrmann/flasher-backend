@@ -28,19 +28,22 @@ const server = new ApolloServer({
   typeDefs: schema,
   resolvers: {
     Query: {
-      login: (parent, args, context) => root.login(args, context),
-      readCard: (parent, args, context) => root.readCard(args),
-      cards: (parent, args, context) => root.cards(args),
-      findNextCard: (parent, args, context) => root.findNextCard(context),
+      login: (_, args, context) =>
+        root.login(args, (name: string, value: string, options: {}) =>
+          context.res.cookie(name, value, options),
+        ),
+      readCard: (_, args, context) => root.readCard(args, context.user),
+      cards: (_, args, context) => root.cards(args, context.user),
+      findNextCard: (_, __, context) => root.findNextCard(context.user),
     },
     Mutation: {
-      createCard: root.createCard,
-      updateCard: root.updateCard,
-      deleteCard: root.deleteCard,
-      setOk: root.setOk,
-      setFailed: root.setFailed,
-      enable: root.enable,
-      disable: root.disable,
+      createCard: (_, args, context) => root.createCard(args, context.user),
+      updateCard: (_, args, context) => root.updateCard(args, context.user),
+      deleteCard: (_, args, context) => root.deleteCard(args, context.user),
+      setOk: (_, args, context) => root.setOk(args, context.user),
+      setFailed: (_, args, context) => root.setFailed(args, context.user),
+      enable: (_, args, context) => root.enable(args, context.user),
+      disable: (_, args, context) => root.disable(args, context.user),
     },
   },
   context: ({ req, res }) => {

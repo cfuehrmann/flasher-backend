@@ -17,7 +17,7 @@ export const create = ({
 }: Dependencies) => ({
   login: async (
     { userName, password }: Credentials,
-    context: { res: { cookie: (x: string, y: string, z: {}) => unknown } },
+    cookieSetter: (name: string, value: string, options: {}) => void,
   ) => {
     const passwordHash = credentialsRepository.getPasswordHash(userName);
 
@@ -26,7 +26,7 @@ export const create = ({
 
       if (success) {
         const token = jsonWebTokenSigner({ sub: userName });
-        context.res.cookie("jwt", token, {
+        cookieSetter("jwt", token, {
           maxAge: 900000,
           httpOnly: true,
         });

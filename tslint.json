@@ -26,7 +26,8 @@
     "completed-docs": false,
     "strict-type-predicates": false, // Not working with type "unknown"
     "no-object-literal-type-assertion": false,
-    "no-unsafe-any": false // because the fix requires lying with an "as"-statement, or maybe an awkward type guard
+    "no-unsafe-any": false, // because the fix requires lying with an "as"-statement, or maybe an awkward type guard
+    "no-void-expression": false
   },
   "rulesDirectory": []
 }
