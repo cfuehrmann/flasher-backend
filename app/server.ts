@@ -11,9 +11,15 @@ import {
   repositoryTools,
 } from "./production-config";
 import { schema } from "./schema";
+import * as securityFactory from "./security";
 
 const root = getRoot();
-const secret = fs.readFileSync(__dirname + "/../mount/public.key");
+
+const security = securityFactory.create({
+  tokenDecoder: getTokenDecoder(
+    fs.readFileSync(__dirname + "/../mount/public.key"),
+  ),
+});
 
 const server = new ApolloServer({
   typeDefs: schema,
@@ -39,30 +45,9 @@ const server = new ApolloServer({
   },
   context: ({ req, res }) => ({
     res,
-    ...getUser(req.headers.cookie),
+    ...security.getUser(req.headers.cookie),
   }),
 });
-
-function getUser(cookie?: string): { user?: string } {
-  if (cookie !== undefined) {
-    const token = cookie.split("=")[1];
-
-    const decodedToken = jsonwebtoken.verify(token, secret, {
-      algorithms: ["RS256"],
-    });
-
-    if (typeof decodedToken === "object") {
-      const user = (decodedToken as { sub: string }).sub;
-      console.log(user);
-
-      return {
-        user,
-      };
-    }
-  }
-
-  return {};
-}
 
 server
   .listen()
@@ -91,6 +76,20 @@ function getRoot() {
       jsonWebTokenSigner,
     }),
     ...domainLogic.create({ repository, getTime, createUuid }),
+  };
+}
+
+function getTokenDecoder(secret: Buffer) {
+  return (token: string) => {
+    const result = jsonwebtoken.verify(token, secret, {
+      algorithms: ["RS256"],
+    });
+
+    if (typeof result === "string") {
+      throw new AuthenticationError("invalidToken");
+    }
+
+    return result;
   };
 }
 
