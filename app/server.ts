@@ -37,28 +37,32 @@ const server = new ApolloServer({
       disable: apollify(root.disable),
     },
   },
-  context: ({ req, res }) => {
-    const cookie = req.headers.cookie;
-
-    if (cookie !== undefined) {
-      const token = cookie.split("=")[1];
-      const decodedToken = jsonwebtoken.verify(token, secret, {
-        algorithms: ["RS256"],
-      });
-
-      if (typeof decodedToken === "object") {
-        return {
-          res,
-          user: (decodedToken as { sub: unknown }).sub,
-        };
-      }
-    }
-
-    return {
-      res,
-    };
-  },
+  context: ({ req, res }) => ({
+    res,
+    ...getUser(req.headers.cookie),
+  }),
 });
+
+function getUser(cookie?: string): { user?: string } {
+  if (cookie !== undefined) {
+    const token = cookie.split("=")[1];
+
+    const decodedToken = jsonwebtoken.verify(token, secret, {
+      algorithms: ["RS256"],
+    });
+
+    if (typeof decodedToken === "object") {
+      const user = (decodedToken as { sub: string }).sub;
+      console.log(user);
+
+      return {
+        user,
+      };
+    }
+  }
+
+  return {};
+}
 
 server
   .listen()
