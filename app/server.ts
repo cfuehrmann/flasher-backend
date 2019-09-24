@@ -1,4 +1,4 @@
-import { ApolloServer } from "apollo-server";
+import { ApolloServer, AuthenticationError } from "apollo-server";
 import * as bcrypt from "bcrypt";
 import * as fs from "fs";
 import * as jsonwebtoken from "jsonwebtoken";
@@ -12,17 +12,8 @@ import {
 } from "./production-config";
 import { schema } from "./schema";
 
-const secret = fs.readFileSync(__dirname + "/../mount/public.key");
-
-// // To avoid sending the call stack to the client
-// app.use(((
-//   err,
-//   req,
-//   res,
-//   next, // for this to work, the last arg is needed even if unused
-// ) => res.status(err.status).send(err.message)) as express.ErrorRequestHandler);
-
 const root = getRoot();
+const secret = fs.readFileSync(__dirname + "/../mount/public.key");
 
 const server = new ApolloServer({
   typeDefs: schema,
@@ -32,18 +23,18 @@ const server = new ApolloServer({
         root.login(args, (name: string, value: string, options: {}) =>
           context.res.cookie(name, value, options),
         ),
-      readCard: (_, args, context) => root.readCard(args, context.user),
-      cards: (_, args, context) => root.cards(args, context.user),
-      findNextCard: (_, __, context) => root.findNextCard(context.user),
+      readCard: apollify(root.readCard),
+      cards: apollify(root.cards),
+      findNextCard: apollify(root.findNextCard),
     },
     Mutation: {
-      createCard: (_, args, context) => root.createCard(args, context.user),
-      updateCard: (_, args, context) => root.updateCard(args, context.user),
-      deleteCard: (_, args, context) => root.deleteCard(args, context.user),
-      setOk: (_, args, context) => root.setOk(args, context.user),
-      setFailed: (_, args, context) => root.setFailed(args, context.user),
-      enable: (_, args, context) => root.enable(args, context.user),
-      disable: (_, args, context) => root.disable(args, context.user),
+      createCard: apollify(root.createCard),
+      updateCard: apollify(root.updateCard),
+      deleteCard: apollify(root.deleteCard),
+      setOk: apollify(root.setOk),
+      setFailed: apollify(root.setFailed),
+      enable: apollify(root.enable),
+      disable: apollify(root.disable),
     },
   },
   context: ({ req, res }) => {
@@ -82,6 +73,7 @@ function getRoot() {
 
   const privateKey = fs.readFileSync(__dirname + "/../mount/private.key");
   const hashComparer = bcrypt.compare;
+
   const jsonWebTokenSigner = (payload: {}) =>
     jsonwebtoken.sign(payload, privateKey, { algorithm: "RS256" });
 
@@ -95,5 +87,21 @@ function getRoot() {
       jsonWebTokenSigner,
     }),
     ...domainLogic.create({ repository, getTime, createUuid }),
+  };
+}
+
+function apollify<T, A, C extends { user: string | undefined }, R>(
+  resolver: (args: A, user: string) => R,
+) {
+  return (_: T, args: A, context: C) => {
+    const user = context.user;
+
+    if (user === undefined) {
+      // todo: change the lines below to check for authentication
+      return resolver(args, "dummyUser");
+      // throw new AuthenticationError("unauthenticated");
+    }
+
+    return resolver(args, user);
   };
 }

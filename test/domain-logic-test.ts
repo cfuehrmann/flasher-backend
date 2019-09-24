@@ -218,7 +218,7 @@ describe("domainLogic", () => {
         getTime: () => now,
       });
 
-      const result = logic.findNextCard("user");
+      const result = logic.findNextCard({}, "user");
 
       assert.strictEqual(result, cardObjectReference);
     });
