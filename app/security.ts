@@ -3,18 +3,43 @@ export type Dependencies = {
 };
 
 export const create = ({ tokenDecoder }: Dependencies) => ({
-  getUser(cookie?: string): { user?: string } {
-    if (cookie !== undefined) {
-      const token = cookie.split("=")[1];
-      const decodedToken = tokenDecoder(token);
-      const user = decodedToken.sub;
-      console.log(user);
+  getUser(cookieString?: string): { user?: string } {
+    let user: string | undefined;
 
-      return {
-        user,
-      };
+    if (cookieString === undefined) {
+      return {};
     }
 
-    return {};
+    const assignments = cookieString.split("; ");
+    let found = false;
+
+    for (const assignment of assignments) {
+      const [name, value] = assignment.split("=");
+
+      if (value === undefined) {
+        return {};
+      }
+
+      if (name === "jwt") {
+        if (found) {
+          return {};
+        }
+
+        found = true;
+
+        try {
+          const decodedToken = tokenDecoder(value);
+          user = decodedToken.sub;
+        } catch (e) {
+          return {};
+        }
+      }
+    }
+
+    return user !== undefined
+      ? {
+          user,
+        }
+      : {};
   },
 });
