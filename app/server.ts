@@ -100,9 +100,7 @@ function apollify<T, A, C extends { user: string | undefined }, R>(
     const user = context.user;
 
     if (user === undefined) {
-      // todo: change the lines below to check for authentication
-      return resolver(args, "dummyUser");
-      // throw new AuthenticationError("unauthenticated");
+      throw new AuthenticationError("unauthenticated");
     }
 
     return resolver(args, user);
