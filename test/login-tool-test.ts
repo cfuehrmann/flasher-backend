@@ -68,10 +68,13 @@ describe("loginTool", () => {
       await tool.login(credentials, (name, value, options) => {
         assert.strictEqual(name, "jwt");
         assert.strictEqual(value, '{"sub":"Joe"}');
-        assert.deepStrictEqual(options, {
-          maxAge: 900000,
-          httpOnly: true,
-        });
+        assert.strictEqual(options.httpOnly, true);
+        assert.strictEqual(options.secure, true);
+        assert.strictEqual(options.sameSite, true);
+        assert.ok(
+          options.maxAge !== undefined && Number.isInteger(options.maxAge),
+        );
+        assert.ok(options.maxAge !== undefined && options.maxAge > 0);
       });
     });
   });

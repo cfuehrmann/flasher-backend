@@ -17,7 +17,16 @@ export const create = ({
 }: Dependencies) => ({
   login: async (
     { userName, password }: Credentials,
-    cookieSetter: (name: string, value: string, options: {}) => void,
+    cookieSetter: (
+      name: string,
+      value: string,
+      options: {
+        maxAge?: number;
+        httpOnly?: boolean;
+        secure?: boolean;
+        sameSite?: boolean;
+      },
+    ) => void,
   ) => {
     const passwordHash = credentialsRepository.getPasswordHash(userName);
 
@@ -28,8 +37,10 @@ export const create = ({
         const token = jsonWebTokenSigner({ sub: userName });
 
         cookieSetter("jwt", token, {
-          maxAge: 900000,
+          maxAge: 60,
           httpOnly: true,
+          secure: true,
+          sameSite: true,
         });
 
         return true;
