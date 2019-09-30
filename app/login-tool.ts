@@ -42,7 +42,7 @@ export const create = ({
           httpOnly: true,
           secure: true,
           sameSite: true,
-          path: "/flasher_api/graphql",
+          path: "/",
         });
 
         return true;
