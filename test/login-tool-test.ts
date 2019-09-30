@@ -1,7 +1,6 @@
 import * as assert from "assert";
 
 import * as loginTool from "../app/login-tool";
-import { pathToArray } from "graphql/jsutils/Path";
 
 const dependencies: loginTool.Dependencies = {
   credentialsRepository: {
