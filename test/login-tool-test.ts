@@ -66,7 +66,7 @@ describe("loginTool", () => {
       });
 
       await tool.login(credentials, (name, value, options) => {
-        assert.strictEqual(name, "jwt");
+        assert.strictEqual(name, "__Host-jwt");
         assert.strictEqual(value, '{"sub":"Joe"}');
         assert.strictEqual(options.httpOnly, true);
         assert.strictEqual(options.secure, true);

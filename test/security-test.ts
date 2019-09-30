@@ -21,7 +21,7 @@ describe("security", () => {
       });
 
       const result = security.getUser(
-        `cookie1=value1; jwt=${tokenValue}; cookie3=value3`,
+        `cookie1=value1; _Host-jwt=${tokenValue}; cookie3=value3`,
       );
 
       assert.deepStrictEqual(result, { user });
@@ -54,7 +54,7 @@ describe("security", () => {
     it("should return no user on multiple jwt cookies", () => {
       const security = securityFactory.create(dependencies);
 
-      const result = security.getUser(`jwt=a; jwt=b`);
+      const result = security.getUser(`__Host-jwt=a; __Host-jwt=b`);
 
       assert.deepStrictEqual(result, {});
     });
@@ -66,7 +66,7 @@ describe("security", () => {
         },
       });
 
-      const result = security.getUser(`jwt=a`);
+      const result = security.getUser(`__Host-jwt=a`);
 
       assert.deepStrictEqual(result, {});
     });
@@ -74,7 +74,7 @@ describe("security", () => {
     it("should return no user on malformed single assignment", () => {
       const security = securityFactory.create(dependencies);
 
-      const result = security.getUser(`jwt`);
+      const result = security.getUser(`__Host-jwt`);
 
       assert.deepStrictEqual(result, {});
     });
@@ -82,7 +82,7 @@ describe("security", () => {
     it("should return no user on malformed assignment", () => {
       const security = securityFactory.create(dependencies);
 
-      const result = security.getUser(`jwt=a; xxx`);
+      const result = security.getUser(`_Host-jwt=a; xxx`);
 
       assert.deepStrictEqual(result, {});
     });

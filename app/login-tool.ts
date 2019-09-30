@@ -37,7 +37,7 @@ export const create = ({
       if (success) {
         const token = jsonWebTokenSigner({ sub: userName });
 
-        cookieSetter("jwt", token, {
+        cookieSetter("__Host-jwt", token, {
           maxAge: 1000 * 60 * 30, // half an hour in milliseconds
           httpOnly: true,
           secure: true,

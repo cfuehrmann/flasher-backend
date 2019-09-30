@@ -20,7 +20,7 @@ export const create = ({ tokenDecoder }: Dependencies) => ({
         return {};
       }
 
-      if (name === "jwt") {
+      if (name === "__Host-jwt") {
         if (found) {
           return {};
         }
