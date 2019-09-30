@@ -1,8 +1,5 @@
+import { ApolloServer, AuthenticationError } from "apollo-server";
 import * as bcrypt from "bcrypt";
-import * as bodyParser from "body-parser";
-import * as express from "express";
-import * as expressGraphQL from "express-graphql";
-import * as jwt from "express-jwt";
 import * as fs from "fs";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as uuid from "uuid";
@@ -14,40 +11,50 @@ import {
   repositoryTools,
 } from "./production-config";
 import { schema } from "./schema";
+import * as securityFactory from "./security";
 
-const app = express();
+const root = getRoot();
 
-app.use("/graphql", bodyParser.json());
-
-const secret = fs.readFileSync(__dirname + "/../mount/public.key");
-
-// Enable the code below to enforce authentication
-// app.use(
-//   jwt({ secret, algorithms: ["RS256"] }).unless(req =>
-//     req.body.query.startsWith("query login"),
-//   ),
-// );
-
-// To avoid sending the call stack to the client
-app.use(((
-  err,
-  req,
-  res,
-  next, // for this to work, the last arg is needed even if unused
-) => res.status(err.status).send(err.message)) as express.ErrorRequestHandler);
-
-app.use(
-  "/graphql",
-  expressGraphQL({
-    schema,
-    rootValue: getRoot(),
-    graphiql: true,
-  }),
-);
-
-app.listen(4000, () => {
-  console.log("Express GraphQL Server Now Running On localhost:4000/graphql");
+const security = securityFactory.create({
+  tokenDecoder: getTokenDecoder(
+    fs.readFileSync(__dirname + "/../mount/public.key"),
+  ),
 });
+
+const server = new ApolloServer({
+  typeDefs: schema,
+  resolvers: {
+    Query: {
+      login: (_, args, context) =>
+        root.login(args, (name: string, value: string, options: {}) =>
+          context.res.cookie(name, value, options),
+        ),
+      readCard: apollify(root.readCard),
+      cards: apollify(root.cards),
+      findNextCard: apollify(root.findNextCard),
+    },
+    Mutation: {
+      createCard: apollify(root.createCard),
+      updateCard: apollify(root.updateCard),
+      deleteCard: apollify(root.deleteCard),
+      setOk: apollify(root.setOk),
+      setFailed: apollify(root.setFailed),
+      enable: apollify(root.enable),
+      disable: apollify(root.disable),
+    },
+  },
+  context: ({ req, res }) => ({
+    res,
+    ...security.getUser(req.headers.cookie),
+  }),
+});
+
+server
+  .listen()
+  .then(({ url }) => {
+    console.log(`🚀  Server ready at ${url}`);
+  })
+  .catch(() => undefined);
 
 function getRoot() {
   const credentialsRepository = credentialsRepositoryTools.connect();
@@ -55,6 +62,7 @@ function getRoot() {
 
   const privateKey = fs.readFileSync(__dirname + "/../mount/private.key");
   const hashComparer = bcrypt.compare;
+
   const jsonWebTokenSigner = (payload: {}) =>
     jsonwebtoken.sign(payload, privateKey, { algorithm: "RS256" });
 
@@ -68,5 +76,33 @@ function getRoot() {
       jsonWebTokenSigner,
     }),
     ...domainLogic.create({ repository, getTime, createUuid }),
+  };
+}
+
+function getTokenDecoder(secret: Buffer) {
+  return (token: string) => {
+    const result = jsonwebtoken.verify(token, secret, {
+      algorithms: ["RS256"],
+    });
+
+    if (typeof result === "string") {
+      throw new AuthenticationError("invalidToken");
+    }
+
+    return result;
+  };
+}
+
+function apollify<T, A, C extends { user: string | undefined }, R>(
+  resolver: (args: A, user: string) => R,
+) {
+  return (_: T, args: A, context: C) => {
+    const user = context.user;
+
+    if (user === undefined) {
+      throw new AuthenticationError("unauthenticated");
+    }
+
+    return resolver(args, user);
   };
 }

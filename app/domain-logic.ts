@@ -10,13 +10,16 @@ export type Dependencies = {
 
 export const create = ({ repository, getTime, createUuid }: Dependencies) => {
   return {
-    createCard: ({
-      prompt,
-      solution,
-    }: {
-      prompt: string;
-      solution: string;
-    }) => {
+    createCard: (
+      {
+        prompt,
+        solution,
+      }: {
+        prompt: string;
+        solution: string;
+      },
+      user: string,
+    ) => {
       const now = getTime();
 
       repository.createCard({
@@ -30,19 +33,22 @@ export const create = ({ repository, getTime, createUuid }: Dependencies) => {
       });
     },
 
-    readCard: ({ id }: { id: string }) => repository.readCard(id),
+    readCard: ({ id }: { id: string }, user: string) => repository.readCard(id),
 
-    updateCard: ({
-      id,
-      prompt,
-      solution,
-      isMinor,
-    }: {
-      id: string;
-      prompt: string;
-      solution: string;
-      isMinor: boolean;
-    }) => {
+    updateCard: (
+      {
+        id,
+        prompt,
+        solution,
+        isMinor,
+      }: {
+        id: string;
+        prompt: string;
+        solution: string;
+        isMinor: boolean;
+      },
+      user: string,
+    ) => {
       if (isMinor) {
         return repository.updateCard({
           id,
@@ -63,29 +69,31 @@ export const create = ({ repository, getTime, createUuid }: Dependencies) => {
       });
     },
 
-    deleteCard: ({ id }: { id: string }) => repository.deleteCard(id),
+    deleteCard: ({ id }: { id: string }, user: string) =>
+      repository.deleteCard(id),
 
-    cards: ({ substring }: { substring: string }) =>
+    cards: ({ substring }: { substring: string }, user: string) =>
       repository.findCards(substring),
 
-    findNextCard: () => repository.findNextCard(getTime()),
+    findNextCard: ({  }: {}, user: string) =>
+      repository.findNextCard(getTime()),
 
-    setOk: ({ id }: { id: string }) => {
+    setOk: ({ id }: { id: string }, user: string) => {
       setState(id, "Ok", passedTime => passedTime * 2);
     },
 
-    setFailed: ({ id }: { id: string }) => {
+    setFailed: ({ id }: { id: string }, user: string) => {
       setState(id, "Failed", passedTime => Math.floor(passedTime / 2));
     },
 
-    enable: ({ id }: { id: string }) => {
+    enable: ({ id }: { id: string }, user: string) => {
       repository.updateCard({
         id,
         disabled: false,
       });
     },
 
-    disable: ({ id }: { id: string }) => {
+    disable: ({ id }: { id: string }, user: string) => {
       repository.updateCard({
         id,
         disabled: true,

@@ -15,14 +15,37 @@ export const create = ({
   hashComparer,
   jsonWebTokenSigner,
 }: Dependencies) => ({
-  login: async ({ userName, password }: Credentials) => {
+  login: async (
+    { userName, password }: Credentials,
+    cookieSetter: (
+      name: string,
+      value: string,
+      options: {
+        maxAge?: number;
+        httpOnly?: boolean;
+        secure?: boolean;
+        sameSite?: boolean;
+        path?: string;
+      },
+    ) => void,
+  ) => {
     const passwordHash = credentialsRepository.getPasswordHash(userName);
 
     if (passwordHash !== undefined) {
       const success = await hashComparer(password, passwordHash);
 
       if (success) {
-        return jsonWebTokenSigner({ sub: userName });
+        const token = jsonWebTokenSigner({ sub: userName });
+
+        cookieSetter("__Host-jwt", token, {
+          maxAge: 1000 * 60 * 30, // half an hour in milliseconds
+          httpOnly: true,
+          secure: true,
+          sameSite: true,
+          path: "/",
+        });
+
+        return true;
       }
     }
 

@@ -35,7 +35,7 @@ describe("loginTool", () => {
         },
       });
 
-      await assert.rejects(tool.login(credentials), {
+      await assert.rejects(tool.login(credentials, () => undefined), {
         name: "Error",
         message: loginTool.userNotFoundOrInvalidPassword,
       });
@@ -50,13 +50,13 @@ describe("loginTool", () => {
         hashComparer: async (data, encrypted) => false,
       });
 
-      await assert.rejects(tool.login(credentials), {
+      await assert.rejects(tool.login(credentials, () => undefined), {
         name: "Error",
         message: loginTool.userNotFoundOrInvalidPassword,
       });
     });
 
-    it("should return a token when the the password is valid", async () => {
+    it("should set a cookie when the the password is valid", async () => {
       const tool = loginTool.create({
         credentialsRepository: {
           getPasswordHash: userName => "Joe",
@@ -65,9 +65,18 @@ describe("loginTool", () => {
         jsonWebTokenSigner: payload => JSON.stringify(payload),
       });
 
-      const result = await tool.login(credentials);
-
-      assert.strictEqual(result, '{"sub":"Joe"}');
+      await tool.login(credentials, (name, value, options) => {
+        assert.strictEqual(name, "__Host-jwt");
+        assert.strictEqual(value, '{"sub":"Joe"}');
+        assert.strictEqual(options.httpOnly, true);
+        assert.strictEqual(options.secure, true);
+        assert.strictEqual(options.sameSite, true);
+        assert.ok(
+          options.maxAge !== undefined && Number.isInteger(options.maxAge),
+        );
+        assert.ok(options.maxAge !== undefined && options.maxAge > 0);
+        assert.ok(options.path !== undefined && options.path.startsWith("/"));
+      });
     });
   });
 });
