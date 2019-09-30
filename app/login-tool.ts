@@ -25,6 +25,7 @@ export const create = ({
         httpOnly?: boolean;
         secure?: boolean;
         sameSite?: boolean;
+        path?: string;
       },
     ) => void,
   ) => {
@@ -41,6 +42,7 @@ export const create = ({
           httpOnly: true,
           secure: true,
           sameSite: true,
+          path: "/flasher_api/graphql1",
         });
 
         return true;

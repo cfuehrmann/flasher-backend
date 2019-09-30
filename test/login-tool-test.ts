@@ -1,6 +1,7 @@
 import * as assert from "assert";
 
 import * as loginTool from "../app/login-tool";
+import { pathToArray } from "graphql/jsutils/Path";
 
 const dependencies: loginTool.Dependencies = {
   credentialsRepository: {
@@ -75,6 +76,7 @@ describe("loginTool", () => {
           options.maxAge !== undefined && Number.isInteger(options.maxAge),
         );
         assert.ok(options.maxAge !== undefined && options.maxAge > 0);
+        assert.ok(options.path !== undefined && options.path.startsWith("/"));
       });
     });
   });
