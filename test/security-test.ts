@@ -21,7 +21,7 @@ describe("security", () => {
       });
 
       const result = security.getUser(
-        `cookie1=value1; _Host-jwt=${tokenValue}; cookie3=value3`,
+        `cookie1=value1; __Host-jwt=${tokenValue}; cookie3=value3`,
       );
 
       assert.deepStrictEqual(result, { user });
