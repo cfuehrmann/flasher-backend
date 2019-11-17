@@ -33,3 +33,10 @@ steps:
       repository: "cfuehrmann/flasher-backend"
       command: "buildAndPush"
       Dockerfile: "**/Dockerfile"
+
+  - task: Sidecar@2
+    inputs:
+      containerRegistry: "cfuehrmanns Docker connection"
+      repository: "cfuehrmann/flasher-backend-sidecar"
+      command: "buildAndPush"
+      Dockerfile: "**/DockerfileForSidecar"
