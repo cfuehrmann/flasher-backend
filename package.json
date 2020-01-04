@@ -10,10 +10,12 @@
     "build": "tsc",
     "watch-build": "tsc -w",
     "test": "mocha --recursive ./dist/test/*.js",
-    "watch-test": "mocha --watch --recursive ./dist/test/*.js",
+    "watch-test": "mocha --inspect -no-timeouts --watch --recursive ./dist/test/*.js",
     "lint": "tslint app/*.ts test/*.ts  -p \"tsconfig.json\" -t verbose",
     "watch-lint": "chokidar app/*.ts test/*.ts -c \"npm run lint\" --initial --verbose",
-    "prettier": "prettier --write {app,test}/**/*.ts *.json"
+    "prettier": "prettier --write {app,test}/**/*.ts *.json",
+    "start": "node dist/app/server.js",
+    "debug": "node --inspect-brk dist/app/server.js"
   },
   "author": "",
   "license": "ISC",
