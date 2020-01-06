@@ -4,11 +4,15 @@ import { Repository, State } from "./types";
 
 export type Dependencies = {
   repository: Repository;
-  getTime: () => Date;
+  getTimeAsDate: () => Date;
   createUuid: () => string;
 };
 
-export const create = ({ repository, getTime, createUuid }: Dependencies) => {
+export const create = ({
+  repository,
+  getTimeAsDate,
+  createUuid,
+}: Dependencies) => {
   return {
     createCard: (
       {
@@ -20,7 +24,7 @@ export const create = ({ repository, getTime, createUuid }: Dependencies) => {
       },
       user: string,
     ) => {
-      const now = getTime();
+      const now = getTimeAsDate();
 
       repository.createCard({
         id: createUuid(),
@@ -57,7 +61,7 @@ export const create = ({ repository, getTime, createUuid }: Dependencies) => {
         });
       }
 
-      const now = getTime();
+      const now = getTimeAsDate();
 
       return repository.updateCard({
         id,
@@ -76,7 +80,7 @@ export const create = ({ repository, getTime, createUuid }: Dependencies) => {
       repository.findCards(substring),
 
     findNextCard: ({  }: {}, user: string) =>
-      repository.findNextCard(getTime()),
+      repository.findNextCard(getTimeAsDate()),
 
     setOk: ({ id }: { id: string }, user: string) => {
       setState(id, "Ok", passedTime => passedTime * 2);
@@ -112,7 +116,7 @@ export const create = ({ repository, getTime, createUuid }: Dependencies) => {
       return;
     }
 
-    const now = getTime();
+    const now = getTimeAsDate();
     const passedTime = differenceInSeconds(now, card.changeTime);
 
     repository.updateCard({

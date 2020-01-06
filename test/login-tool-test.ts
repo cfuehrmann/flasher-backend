@@ -14,6 +14,9 @@ const dependencies: loginTool.Dependencies = {
   jsonWebTokenSigner: payload => {
     throw new Error();
   },
+  getTimeAsDate: () => {
+    throw new Error();
+  },
 };
 
 const credentials: loginTool.Credentials = {
@@ -57,17 +60,23 @@ describe("loginTool", () => {
     });
 
     it("should set a cookie when the the password is valid", async () => {
+      const getTimeAsDate = () => new Date(2020, 6, 1);
+
       const tool = loginTool.create({
         credentialsRepository: {
           getPasswordHash: userName => "Joe",
         },
         hashComparer: async (data, encrypted) => true,
         jsonWebTokenSigner: payload => JSON.stringify(payload),
+        getTimeAsDate,
       });
 
       await tool.login(credentials, (name, value, options) => {
         assert.strictEqual(name, "__Host-jwt");
-        assert.strictEqual(value, '{"sub":"Joe"}');
+        const valueObject = JSON.parse(value);
+        assert.strictEqual(valueObject.sub, "Joe");
+        assert.strictEqual(typeof valueObject.exp, "number");
+        assert.ok(valueObject.exp > getTimeAsDate().getTime() / 1000);
         assert.strictEqual(options.httpOnly, true);
         assert.strictEqual(options.secure, true);
         assert.strictEqual(options.sameSite, true);

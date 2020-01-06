@@ -66,7 +66,7 @@ function getRoot() {
   const jsonWebTokenSigner = (payload: {}) =>
     jsonwebtoken.sign(payload, privateKey, { algorithm: "RS256" });
 
-  const getTime = () => new Date();
+  const getTimeAsDate = () => new Date();
   const createUuid = uuid.v4;
 
   return {
@@ -74,8 +74,9 @@ function getRoot() {
       credentialsRepository,
       hashComparer,
       jsonWebTokenSigner,
+      getTimeAsDate,
     }),
-    ...domainLogic.create({ repository, getTime, createUuid }),
+    ...domainLogic.create({ repository, getTimeAsDate, createUuid }),
   };
 }
 

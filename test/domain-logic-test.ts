@@ -2,7 +2,7 @@ import * as assert from "assert";
 import { addMinutes, addSeconds, isEqual, subSeconds } from "date-fns";
 
 import * as domainLogic from "../app/domain-logic";
-import { Card, CardUpdate, Repository } from "../app/types";
+import { Card, CardUpdate } from "../app/types";
 
 const dependencies: domainLogic.Dependencies = {
   repository: {
@@ -25,7 +25,7 @@ const dependencies: domainLogic.Dependencies = {
       throw new Error();
     },
   },
-  getTime: () => {
+  getTimeAsDate: () => {
     throw new Error();
   },
   createUuid: () => {
@@ -64,7 +64,7 @@ describe("domainLogic", () => {
             repoArgs.createCardArg = card;
           },
         },
-        getTime: () => now,
+        getTimeAsDate: () => now,
         createUuid: () => id,
       });
       const arg = { prompt: "prompt", solution: "solution" };
@@ -116,7 +116,7 @@ describe("domainLogic", () => {
               return cardObjectReference;
             },
           },
-          getTime: () => now,
+          getTimeAsDate: () => now,
         }),
         repoArgs,
         now,
@@ -215,7 +215,7 @@ describe("domainLogic", () => {
           findNextCard: time =>
             isEqual(time, now) ? cardObjectReference : undefined,
         },
-        getTime: () => now,
+        getTimeAsDate: () => now,
       });
 
       const result = logic.findNextCard({}, "user");
@@ -254,7 +254,7 @@ describe("domainLogic", () => {
               return cardObjectReference;
             },
           },
-          getTime: () => now,
+          getTimeAsDate: () => now,
         }),
         repoArgs,
         now,
@@ -334,7 +334,7 @@ describe("domainLogic", () => {
               return cardObjectReference;
             },
           },
-          getTime: () => now,
+          getTimeAsDate: () => now,
         }),
         repoArgs,
         now,
