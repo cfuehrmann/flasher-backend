@@ -1,19 +1,25 @@
+import { addMinutes } from "date-fns";
+
 import { CredentialsRepository } from "./types";
 
 export type Dependencies = {
   credentialsRepository: CredentialsRepository;
   hashComparer: (data: string, encrypted: string) => Promise<boolean>;
   jsonWebTokenSigner: (payload: {}) => string;
+  getTimeAsDate: () => Date;
 };
 
 export type Credentials = { userName: string; password: string };
 
 export const userNotFoundOrInvalidPassword = "userNotFoundOrInvalidPassword";
 
+const tokenLifeTimeMinutes = 30;
+
 export const create = ({
   credentialsRepository,
   hashComparer,
   jsonWebTokenSigner,
+  getTimeAsDate,
 }: Dependencies) => ({
   login: async (
     { userName, password }: Credentials,
@@ -35,10 +41,15 @@ export const create = ({
       const success = await hashComparer(password, passwordHash);
 
       if (success) {
-        const token = jsonWebTokenSigner({ sub: userName });
+        const token = jsonWebTokenSigner({
+          sub: userName,
+          exp: Math.floor(
+            addMinutes(getTimeAsDate(), tokenLifeTimeMinutes).getTime() / 1000,
+          ),
+        });
 
         cookieSetter("__Host-jwt", token, {
-          maxAge: 1000 * 60 * 30, // half an hour in milliseconds
+          maxAge: 1000 * 60 * tokenLifeTimeMinutes, // half an hour in milliseconds
           httpOnly: true,
           secure: true,
           sameSite: true,
