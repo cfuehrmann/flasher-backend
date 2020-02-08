@@ -7,6 +7,7 @@ import * as uuid from "uuid";
 import * as domainLogic from "./domain-logic";
 import * as loginTool from "./login-tool";
 import {
+  autoSaveRepositoryTools,
   credentialsRepositoryTools,
   repositoryTools,
 } from "./production-config";
@@ -41,6 +42,7 @@ const server = new ApolloServer({
       setFailed: apollify(root.setFailed),
       enable: apollify(root.enable),
       disable: apollify(root.disable),
+      saveSnapshot: apollify(root.saveSnapshot),
     },
   },
   context: ({ req, res }) => ({
@@ -57,6 +59,7 @@ server
   .catch(() => undefined);
 
 function getRoot() {
+  const autoSaveRepository = autoSaveRepositoryTools.connect();
   const credentialsRepository = credentialsRepositoryTools.connect();
   const repository = repositoryTools.connect();
 
@@ -76,7 +79,12 @@ function getRoot() {
       jsonWebTokenSigner,
       getTimeAsDate,
     }),
-    ...domainLogic.create({ repository, getTimeAsDate, createUuid }),
+    ...domainLogic.create({
+      repository,
+      autoSaveRepository,
+      getTimeAsDate,
+      createUuid,
+    }),
   };
 }
 

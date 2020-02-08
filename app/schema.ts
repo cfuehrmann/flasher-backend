@@ -20,6 +20,8 @@ export const schema = gql`
     setFailed(id: ID!): Boolean
     enable(id: ID!): Boolean
     disable(id: ID!): Boolean
+    saveSnapshot(card: CardInput!): Boolean
+    deleteSnapshot: Boolean
   }
   type Card {
     id: ID!
@@ -29,5 +31,10 @@ export const schema = gql`
     changeTime: String!
     nextTime: String!
     disabled: Boolean!
+  }
+  input CardInput {
+    id: ID!
+    prompt: String!
+    solution: String!
   }
 `;

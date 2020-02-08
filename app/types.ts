@@ -11,6 +11,11 @@ export type CredentialsRepository = {
   getPasswordHash(userName: string): string | undefined;
 };
 
+export type AutoSaveRepository = {
+  saveSnapshot(card: Card): void;
+  deleteSnapshot(): void;
+};
+
 export type Card = { id: string } & CardUpdatables;
 export type CardUpdate = { id: string } & Partial<CardUpdatables>;
 

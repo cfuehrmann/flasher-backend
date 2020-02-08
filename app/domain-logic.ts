@@ -1,15 +1,17 @@
 import { addMinutes, addSeconds, differenceInSeconds } from "date-fns";
 
-import { Repository, State } from "./types";
+import { AutoSaveRepository, Card, Repository, State } from "./types";
 
 export type Dependencies = {
   repository: Repository;
+  autoSaveRepository: AutoSaveRepository;
   getTimeAsDate: () => Date;
   createUuid: () => string;
 };
 
 export const create = ({
   repository,
+  autoSaveRepository,
   getTimeAsDate,
   createUuid,
 }: Dependencies) => {
@@ -102,6 +104,14 @@ export const create = ({
         id,
         disabled: true,
       });
+    },
+
+    saveSnapshot: (card: Card, user: string) => {
+      autoSaveRepository.saveSnapshot(card);
+    },
+
+    deleteSnapshot: () => {
+      autoSaveRepository.deleteSnapshot();
     },
   };
 

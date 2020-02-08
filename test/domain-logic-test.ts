@@ -2,7 +2,7 @@ import * as assert from "assert";
 import { addMinutes, addSeconds, isEqual, subSeconds } from "date-fns";
 
 import * as domainLogic from "../app/domain-logic";
-import { Card, CardUpdate } from "../app/types";
+import { Card, CardUpdate, Repository } from "../app/types";
 
 const dependencies: domainLogic.Dependencies = {
   repository: {
@@ -31,6 +31,14 @@ const dependencies: domainLogic.Dependencies = {
   createUuid: () => {
     throw new Error();
   },
+  autoSaveRepository: {
+    saveSnapshot: card => {
+      throw new Error();
+    },
+    deleteSnapshot: () => {
+      throw new Error();
+    },
+  },
 };
 
 // A card that is only ever checked as an object reference
@@ -57,13 +65,16 @@ describe("domainLogic", () => {
       };
       const now = new Date("2018-07-29T17:01:02.345Z");
       const id = "d9f77655-c17e-43a5-a7be-997a01d65c37";
-      const logic = domainLogic.create({
-        repository: {
-          ...dependencies.repository,
-          createCard: card => {
-            repoArgs.createCardArg = card;
-          },
+      const repository: Repository = {
+        ...dependencies.repository,
+        createCard: card => {
+          repoArgs.createCardArg = card;
         },
+      };
+      const autoSaveRepository = dependencies.autoSaveRepository;
+      const logic = domainLogic.create({
+        repository,
+        autoSaveRepository,
         getTimeAsDate: () => now,
         createUuid: () => id,
       });
