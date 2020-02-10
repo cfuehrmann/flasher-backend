@@ -54,26 +54,17 @@ export const create = ({
         isMinor: boolean;
       },
       user: string,
-    ) => {
-      if (isMinor) {
-        return repository.updateCard({
-          id,
-          prompt,
-          solution,
-        });
-      }
-
-      const now = getTimeAsDate();
-
-      return repository.updateCard({
-        id,
-        prompt,
-        solution,
-        state: "New",
-        changeTime: now,
-        nextTime: addMinutes(now, 30),
-      });
-    },
+    ) =>
+      isMinor
+        ? updateMinor(repository, autoSaveRepository, id, prompt, solution)
+        : updateMajor(
+            repository,
+            autoSaveRepository,
+            id,
+            prompt,
+            solution,
+            getTimeAsDate,
+          ),
 
     deleteCard: ({ id }: { id: string }, user: string) =>
       repository.deleteCard(id),
@@ -110,7 +101,7 @@ export const create = ({
       autoSaveRepository.saveSnapshot(card);
     },
 
-    deleteSnapshot: () => {
+    deleteSnapshot: ({  }: {}, user: string) => {
       autoSaveRepository.deleteSnapshot();
     },
   };
@@ -137,3 +128,40 @@ export const create = ({
     });
   }
 };
+
+function updateMajor(
+  repository: Repository,
+  autoSaveRepository: AutoSaveRepository,
+  id: string,
+  prompt: string,
+  solution: string,
+  getTimeAsDate: () => Date,
+) {
+  const now = getTimeAsDate();
+  const result = repository.updateCard({
+    id,
+    prompt,
+    solution,
+    state: "New",
+    changeTime: now,
+    nextTime: addMinutes(now, 30),
+  });
+  autoSaveRepository.deleteSnapshot();
+  return result;
+}
+
+function updateMinor(
+  repository: Repository,
+  autoSaveRepository: AutoSaveRepository,
+  id: string,
+  prompt: string,
+  solution: string,
+) {
+  const result = repository.updateCard({
+    id,
+    prompt,
+    solution,
+  });
+  autoSaveRepository.deleteSnapshot();
+  return result;
+}

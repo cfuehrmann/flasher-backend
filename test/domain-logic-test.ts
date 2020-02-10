@@ -111,20 +111,27 @@ describe("domainLogic", () => {
     });
   });
 
+  type RepositoryTrace = { update: CardUpdate } | { deleteSnapshot: "called" };
+
   describe("updateCard", () => {
     const getSetup = () => {
-      const repoArgs: { updateArg: CardUpdate | "uncalled" } = {
-        updateArg: "uncalled",
-      };
+      const repoArgs: RepositoryTrace[] = [];
       const now = new Date("2018-07-29T17:01:02.345Z");
+
       return {
         logic: domainLogic.create({
           ...dependencies,
           repository: {
             ...dependencies.repository,
             updateCard: update => {
-              repoArgs.updateArg = update;
+              repoArgs.push({ update });
               return cardObjectReference;
+            },
+          },
+          autoSaveRepository: {
+            ...dependencies.autoSaveRepository,
+            deleteSnapshot: () => {
+              repoArgs.push({ deleteSnapshot: "called" });
             },
           },
           getTimeAsDate: () => now,
@@ -148,11 +155,17 @@ describe("domainLogic", () => {
       const result = setup.logic.updateCard(args, "user");
 
       // Assert
-      assert.deepStrictEqual(setup.repoArgs.updateArg, {
-        id: args.id,
-        prompt: args.prompt,
-        solution: args.solution,
-      } as CardUpdate);
+      const expected: RepositoryTrace[] = [
+        {
+          update: {
+            id: args.id,
+            prompt: args.prompt,
+            solution: args.solution,
+          },
+        },
+        { deleteSnapshot: "called" },
+      ];
+      assert.deepStrictEqual(setup.repoArgs, expected);
       assert.strictEqual(result, cardObjectReference);
     });
 
@@ -170,14 +183,20 @@ describe("domainLogic", () => {
       const result = setup.logic.updateCard(args, "user");
 
       // Assert
-      assert.deepStrictEqual(setup.repoArgs.updateArg, {
-        id: args.id,
-        prompt: args.prompt,
-        solution: args.solution,
-        state: "New",
-        changeTime: setup.now,
-        nextTime: addMinutes(setup.now, 30),
-      } as CardUpdate);
+      const expected: RepositoryTrace[] = [
+        {
+          update: {
+            id: args.id,
+            prompt: args.prompt,
+            solution: args.solution,
+            state: "New",
+            changeTime: setup.now,
+            nextTime: addMinutes(setup.now, 30),
+          },
+        },
+        { deleteSnapshot: "called" },
+      ];
+      assert.deepStrictEqual(setup.repoArgs, expected);
       assert.strictEqual(result, cardObjectReference);
     });
   });

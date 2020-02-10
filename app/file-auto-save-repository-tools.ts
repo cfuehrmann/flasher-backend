@@ -11,7 +11,7 @@ export const createFileAutoSaveRepositoryTools = (fileName: string) => {
 
     return {
       saveSnapshot: card => console.log(card),
-      deleteSnapshot: () => undefined,
+      deleteSnapshot: () => console.log("deleting"),
     };
   }
 };
