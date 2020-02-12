@@ -10,7 +10,7 @@ export const createFileAutoSaveRepositoryTools = (fileName: string) => {
     // const card = JSON.parse(json.toString());
 
     return {
-      saveSnapshot: card => console.log(card),
+      saveSnapshot: card => console.log("saving"),
       deleteSnapshot: () => console.log("deleting"),
     };
   }

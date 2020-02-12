@@ -43,6 +43,7 @@ const server = new ApolloServer({
       enable: apollify(root.enable),
       disable: apollify(root.disable),
       saveSnapshot: apollify(root.saveSnapshot),
+      deleteSnapshot: apollify(root.deleteSnapshot),
     },
   },
   context: ({ req, res }) => ({
