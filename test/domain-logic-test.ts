@@ -111,11 +111,11 @@ describe("domainLogic", () => {
     });
   });
 
-  type RepositoryTrace = { update: CardUpdate } | { deleteSnapshot: "called" };
+  type RepositoryAction = { update: CardUpdate } | { deleteSnapshot: "called" };
 
   describe("updateCard", () => {
     const getSetup = () => {
-      const repoArgs: RepositoryTrace[] = [];
+      const trace: RepositoryAction[] = [];
       const now = new Date("2018-07-29T17:01:02.345Z");
 
       return {
@@ -124,19 +124,19 @@ describe("domainLogic", () => {
           repository: {
             ...dependencies.repository,
             updateCard: update => {
-              repoArgs.push({ update });
+              trace.push({ update });
               return cardObjectReference;
             },
           },
           autoSaveRepository: {
             ...dependencies.autoSaveRepository,
             deleteSnapshot: () => {
-              repoArgs.push({ deleteSnapshot: "called" });
+              trace.push({ deleteSnapshot: "called" });
             },
           },
           getTimeAsDate: () => now,
         }),
-        repoArgs,
+        repoArgs: trace,
         now,
       };
     };
@@ -155,7 +155,7 @@ describe("domainLogic", () => {
       const result = setup.logic.updateCard(args, "user");
 
       // Assert
-      const expected: RepositoryTrace[] = [
+      const expected: RepositoryAction[] = [
         {
           update: {
             id: args.id,
@@ -183,7 +183,7 @@ describe("domainLogic", () => {
       const result = setup.logic.updateCard(args, "user");
 
       // Assert
-      const expected: RepositoryTrace[] = [
+      const expected: RepositoryAction[] = [
         {
           update: {
             id: args.id,
