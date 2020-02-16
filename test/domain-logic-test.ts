@@ -58,7 +58,7 @@ describe("domainLogic", () => {
   });
 
   describe("createCard", () => {
-    it("should use repository create with all fields set correctly", () => {
+    it("should use repository create with all fields set correctly", async () => {
       // Arrange
       const repoArgs: { createCardArg: Card | "uncalled" } = {
         createCardArg: "uncalled",
@@ -67,8 +67,9 @@ describe("domainLogic", () => {
       const id = "d9f77655-c17e-43a5-a7be-997a01d65c37";
       const repository: Repository = {
         ...dependencies.repository,
-        createCard: card => {
+        createCard: async card => {
           repoArgs.createCardArg = card;
+          return;
         },
       };
       const autoSaveRepository = dependencies.autoSaveRepository;
@@ -81,7 +82,7 @@ describe("domainLogic", () => {
       const arg = { prompt: "prompt", solution: "solution" };
 
       // Act
-      logic.createCard(arg, "user");
+      await logic.createCard(arg, "user");
 
       // Assert
       assert.deepStrictEqual(repoArgs.createCardArg, {
@@ -96,16 +97,16 @@ describe("domainLogic", () => {
   });
 
   describe("readCard", () => {
-    it("should return repository result", () => {
+    it("should return repository result", async () => {
       const logic = domainLogic.create({
         ...dependencies,
         repository: {
           ...dependencies.repository,
-          readCard: id => (id === "42" ? cardObjectReference : undefined),
+          readCard: async id => (id === "42" ? cardObjectReference : undefined),
         },
       });
 
-      const result = logic.readCard({ id: "42" }, "user");
+      const result = await logic.readCard({ id: "42" }, "user");
 
       assert.strictEqual(result, cardObjectReference);
     });
@@ -123,7 +124,7 @@ describe("domainLogic", () => {
           ...dependencies,
           repository: {
             ...dependencies.repository,
-            updateCard: update => {
+            updateCard: async update => {
               trace.push({ update });
               return cardObjectReference;
             },
@@ -203,53 +204,53 @@ describe("domainLogic", () => {
   });
 
   describe("deleteCard", () => {
-    it("should use repository method, no more, no less", () => {
+    it("should use repository method, no more, no less", async () => {
       const logic = domainLogic.create({
         ...dependencies,
         repository: {
           ...dependencies.repository,
-          deleteCard: id => id === "42",
+          deleteCard: async id => id === "42",
         },
       });
 
-      const result = logic.deleteCard({ id: "42" }, "user");
+      const result = await logic.deleteCard({ id: "42" }, "user");
 
       assert.strictEqual(true, result);
     });
   });
 
   describe("cards", () => {
-    it("should return repository result", () => {
+    it("should return repository result", async () => {
       const repositoryResult = [cardObjectReference];
       const logic = domainLogic.create({
         ...dependencies,
         repository: {
           ...dependencies.repository,
-          findCards: substring =>
+          findCards: async substring =>
             substring === "ohn smit" ? repositoryResult : [],
         },
       });
 
-      const result = logic.cards({ substring: "ohn smit" }, "user");
+      const result = await logic.cards({ substring: "ohn smit" }, "user");
 
       assert.strictEqual(result, repositoryResult);
     });
   });
 
   describe("findNextCard", () => {
-    it("should return repository result", () => {
+    it("should return repository result", async () => {
       const now = new Date("2018-07-29T17:53:12.345Z");
       const logic = domainLogic.create({
         ...dependencies,
         repository: {
           ...dependencies.repository,
-          findNextCard: time =>
+          findNextCard: async time =>
             isEqual(time, now) ? cardObjectReference : undefined,
         },
         getTimeAsDate: () => now,
       });
 
-      const result = logic.findNextCard({}, "user");
+      const result = await logic.findNextCard({}, "user");
 
       assert.strictEqual(result, cardObjectReference);
     });
@@ -279,8 +280,8 @@ describe("domainLogic", () => {
           ...dependencies,
           repository: {
             ...dependencies.repository,
-            readCard: id => (id === card.id ? card : undefined),
-            updateCard: update => {
+            readCard: async id => (id === card.id ? card : undefined),
+            updateCard: async update => {
               repoArgs.updateArg = update;
               return cardObjectReference;
             },
@@ -293,10 +294,10 @@ describe("domainLogic", () => {
       };
     };
 
-    it("setOk should work correctly when card found", () => {
+    it("setOk should work correctly when card found", async () => {
       const setup = getSetup();
 
-      setup.logic.setOk({ id: cardId }, "user");
+      await setup.logic.setOk({ id: cardId }, "user");
 
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
         id: cardId,
@@ -306,10 +307,10 @@ describe("domainLogic", () => {
       });
     });
 
-    it("setFailed should work correctly when card found", () => {
+    it("setFailed should work correctly when card found", async () => {
       const setup = getSetup();
 
-      setup.logic.setFailed({ id: setup.card.id }, "user");
+      await setup.logic.setFailed({ id: setup.card.id }, "user");
 
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
         id: cardId,
@@ -319,18 +320,18 @@ describe("domainLogic", () => {
       });
     });
 
-    it("setOk should work correctly when card not found", () => {
+    it("setOk should work correctly when card not found", async () => {
       const setup = getSetup();
 
-      setup.logic.setOk({ id: "newUuid" }, "user");
+      await setup.logic.setOk({ id: "newUuid" }, "user");
 
       assert.strictEqual(setup.repoArgs.updateArg, "uncalled");
     });
 
-    it("setFailed should work correctly when card not found", () => {
+    it("setFailed should work correctly when card not found", async () => {
       const setup = getSetup();
 
-      setup.logic.setFailed({ id: "newUuid" }, "user");
+      await setup.logic.setFailed({ id: "newUuid" }, "user");
 
       assert.strictEqual(setup.repoArgs.updateArg, "uncalled");
     });
@@ -360,7 +361,7 @@ describe("domainLogic", () => {
           ...dependencies,
           repository: {
             ...dependencies.repository,
-            updateCard: update => {
+            updateCard: async update => {
               repoArgs.updateArg = update;
               return cardObjectReference;
             },
@@ -373,10 +374,10 @@ describe("domainLogic", () => {
       };
     };
 
-    it("enable should work correctly when card found", () => {
+    it("enable should work correctly when card found", async () => {
       const setup = getSetup();
 
-      setup.logic.enable({ id: cardId }, "user");
+      await setup.logic.enable({ id: cardId }, "user");
 
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
         id: cardId,
@@ -384,10 +385,10 @@ describe("domainLogic", () => {
       });
     });
 
-    it("disable should work correctly when card found", () => {
+    it("disable should work correctly when card found", async () => {
       const setup = getSetup();
 
-      setup.logic.disable({ id: setup.card.id }, "user");
+      await setup.logic.disable({ id: setup.card.id }, "user");
 
       assert.deepStrictEqual(setup.repoArgs.updateArg, {
         id: cardId,

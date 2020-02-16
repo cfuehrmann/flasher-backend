@@ -1,10 +1,10 @@
 export type Repository = {
-  createCard(card: Readonly<Card>): void;
-  readCard(id: string): Card | undefined;
-  updateCard(update: Readonly<CardUpdate>): Card | undefined;
-  deleteCard(id: string): boolean;
-  findCards(substring: string): Card[];
-  findNextCard(time: Date): Card | undefined;
+  createCard(card: Readonly<Card>): Promise<void>;
+  readCard(id: string): Promise<Card | undefined>;
+  updateCard(update: Readonly<CardUpdate>): Promise<Card | undefined>;
+  deleteCard(id: string): Promise<boolean>;
+  findCards(substring: string): Promise<Card[]>;
+  findNextCard(time: Date): Promise<Card | undefined>;
 };
 
 export type CredentialsRepository = {
