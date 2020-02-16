@@ -41,7 +41,7 @@ export const create = ({
 
     readCard: ({ id }: { id: string }, user: string) => repository.readCard(id),
 
-    updateCard: (
+    updateCard: async (
       {
         id,
         prompt,
@@ -97,12 +97,12 @@ export const create = ({
       });
     },
 
-    saveSnapshot: (card: Card, user: string) => {
-      autoSaveRepository.saveSnapshot(card);
+    saveSnapshot: async (card: Card, user: string) => {
+      await autoSaveRepository.saveSnapshot(card);
     },
 
-    deleteSnapshot: ({  }: {}, user: string) => {
-      autoSaveRepository.deleteSnapshot();
+    deleteSnapshot: async ({  }: {}, user: string) => {
+      await autoSaveRepository.deleteSnapshot();
     },
   };
 
@@ -129,7 +129,7 @@ export const create = ({
   }
 };
 
-function updateMajor(
+async function updateMajor(
   repository: Repository,
   autoSaveRepository: AutoSaveRepository,
   id: string,
@@ -146,11 +146,11 @@ function updateMajor(
     changeTime: now,
     nextTime: addMinutes(now, 30),
   });
-  autoSaveRepository.deleteSnapshot();
+  await autoSaveRepository.deleteSnapshot();
   return result;
 }
 
-function updateMinor(
+async function updateMinor(
   repository: Repository,
   autoSaveRepository: AutoSaveRepository,
   id: string,
@@ -162,6 +162,6 @@ function updateMinor(
     prompt,
     solution,
   });
-  autoSaveRepository.deleteSnapshot();
+  await autoSaveRepository.deleteSnapshot();
   return result;
 }

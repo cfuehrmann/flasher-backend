@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import { promises as fs } from "fs";
 
 import { AutoSaveRepository } from "./types";
 
@@ -6,12 +6,10 @@ export const createFileAutoSaveRepositoryTools = (fileName: string) => {
   return { connect };
 
   function connect(): AutoSaveRepository {
-    // const json = fs.readFileSync(fileName);
-    // const card = JSON.parse(json.toString());
-
     return {
-      saveSnapshot: card => console.log("saving"),
-      deleteSnapshot: () => console.log("deleting"),
+      saveSnapshot: async data =>
+        fs.writeFile(fileName, JSON.stringify(data, undefined, 4)),
+      deleteSnapshot: async () => fs.unlink(fileName),
     };
   }
 };

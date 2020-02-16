@@ -130,8 +130,9 @@ describe("domainLogic", () => {
           },
           autoSaveRepository: {
             ...dependencies.autoSaveRepository,
-            deleteSnapshot: () => {
+            deleteSnapshot: async () => {
               trace.push({ deleteSnapshot: "called" });
+              return;
             },
           },
           getTimeAsDate: () => now,
@@ -141,7 +142,7 @@ describe("domainLogic", () => {
       };
     };
 
-    it("should use repository update with prompt and solution when isMinor is true", () => {
+    it("should use repository update with prompt and solution when isMinor is true", async () => {
       // Arrange
       const setup = getSetup();
       const args = {
@@ -152,7 +153,7 @@ describe("domainLogic", () => {
       };
 
       // Act
-      const result = setup.logic.updateCard(args, "user");
+      const result = await setup.logic.updateCard(args, "user");
 
       // Assert
       const expected: RepositoryAction[] = [
@@ -169,7 +170,7 @@ describe("domainLogic", () => {
       assert.strictEqual(result, cardObjectReference);
     });
 
-    it("should use repository update with all fields set when isMinor is false", () => {
+    it("should use repository update with all fields set when isMinor is false", async () => {
       // Arrange
       const setup = getSetup();
       const args = {
@@ -180,7 +181,7 @@ describe("domainLogic", () => {
       };
 
       // Act
-      const result = setup.logic.updateCard(args, "user");
+      const result = await setup.logic.updateCard(args, "user");
 
       // Assert
       const expected: RepositoryAction[] = [

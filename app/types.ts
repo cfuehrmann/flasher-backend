@@ -12,8 +12,8 @@ export type CredentialsRepository = {
 };
 
 export type AutoSaveRepository = {
-  saveSnapshot(card: Card): void;
-  deleteSnapshot(): void;
+  saveSnapshot(card: Card): Promise<void>;
+  deleteSnapshot(): Promise<void>;
 };
 
 export type Card = { id: string } & CardUpdatables;
