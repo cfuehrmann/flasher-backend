@@ -7,9 +7,21 @@ export const createFileAutoSaveRepositoryTools = (fileName: string) => {
 
   function connect(): AutoSaveRepository {
     return {
-      saveSnapshot: async data =>
+      read: async () => {
+        try {
+          const buffer = await fs.readFile(fileName);
+          return JSON.parse(buffer.toString()).card;
+        } catch (e) {
+          if (e.code === "ENOENT") {
+            return undefined;
+          }
+
+          throw e;
+        }
+      },
+      write: async data =>
         fs.writeFile(fileName, JSON.stringify(data, undefined, 4)),
-      deleteSnapshot: async () => fs.unlink(fileName),
+      delete: async () => fs.unlink(fileName),
     };
   }
 };

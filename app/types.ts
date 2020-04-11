@@ -11,10 +11,16 @@ export type CredentialsRepository = {
   getPasswordHash(userName: string): string | undefined;
 };
 
-export type AutoSaveRepository = {
-  saveSnapshot(card: Card): Promise<void>;
-  deleteSnapshot(): Promise<void>;
+export type AutoSaveWriter = {
+  write(card: Card): Promise<void>;
+  delete(): Promise<void>;
 };
+
+export type AutoSaveRepository = AutoSaveWriter & {
+  read(): Promise<AutoSave | undefined>;
+};
+
+export type AutoSave = { id: string; prompt: string; solution: string };
 
 export type Card = { id: string } & CardUpdatables;
 export type CardUpdate = { id: string } & Partial<CardUpdatables>;

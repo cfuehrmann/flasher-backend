@@ -1,17 +1,17 @@
 import { addMinutes, addSeconds, differenceInSeconds } from "date-fns";
 
-import { AutoSaveRepository, Card, Repository, State } from "./types";
+import { AutoSaveWriter, Card, Repository, State } from "./types";
 
 export type Dependencies = {
   repository: Repository;
-  autoSaveRepository: AutoSaveRepository;
+  autoSaveWriter: AutoSaveWriter;
   getTimeAsDate: () => Date;
   createUuid: () => string;
 };
 
 export const create = ({
   repository,
-  autoSaveRepository,
+  autoSaveWriter,
   getTimeAsDate,
   createUuid,
 }: Dependencies) => {
@@ -57,10 +57,10 @@ export const create = ({
       user: string,
     ) =>
       isMinor
-        ? updateMinor(repository, autoSaveRepository, id, prompt, solution)
+        ? updateMinor(repository, autoSaveWriter, id, prompt, solution)
         : updateMajor(
             repository,
-            autoSaveRepository,
+            autoSaveWriter,
             id,
             prompt,
             solution,
@@ -98,12 +98,12 @@ export const create = ({
       });
     },
 
-    saveSnapshot: async (card: Card, user: string) => {
-      await autoSaveRepository.saveSnapshot(card);
+    writeAutoSave: async (card: Card, user: string) => {
+      await autoSaveWriter.write(card);
     },
 
-    deleteSnapshot: async ({  }: {}, user: string) => {
-      await autoSaveRepository.deleteSnapshot();
+    deleteAutoSave: async ({  }: {}, user: string) => {
+      await autoSaveWriter.delete();
     },
   };
 
@@ -132,7 +132,7 @@ export const create = ({
 
 async function updateMajor(
   repository: Repository,
-  autoSaveRepository: AutoSaveRepository,
+  autoSaveWriter: AutoSaveWriter,
   id: string,
   prompt: string,
   solution: string,
@@ -147,13 +147,13 @@ async function updateMajor(
     changeTime: now,
     nextTime: addMinutes(now, 30),
   });
-  await autoSaveRepository.deleteSnapshot();
+  await autoSaveWriter.delete();
   return result;
 }
 
 async function updateMinor(
   repository: Repository,
-  autoSaveRepository: AutoSaveRepository,
+  autoSaveWriter: AutoSaveWriter,
   id: string,
   prompt: string,
   solution: string,
@@ -163,6 +163,6 @@ async function updateMinor(
     prompt,
     solution,
   });
-  await autoSaveRepository.deleteSnapshot();
+  await autoSaveWriter.delete();
   return result;
 }

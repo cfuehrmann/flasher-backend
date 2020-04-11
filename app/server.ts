@@ -42,8 +42,8 @@ const server = new ApolloServer({
       setFailed: apollify(root.setFailed),
       enable: apollify(root.enable),
       disable: apollify(root.disable),
-      saveSnapshot: apollify(root.saveSnapshot),
-      deleteSnapshot: apollify(root.deleteSnapshot),
+      writeAutoSave: apollify(root.writeAutoSave),
+      deleteAutoSave: apollify(root.deleteAutoSave),
     },
   },
   context: ({ req, res }) => ({
@@ -60,12 +60,14 @@ server
   .catch(() => undefined);
 
 function getRoot() {
-  const autoSaveRepository = autoSaveRepositoryTools.connect();
   const credentialsRepository = credentialsRepositoryTools.connect();
+  const autoSaveRepository = autoSaveRepositoryTools.connect();
+  const readAutoSave = () => autoSaveRepository.read();
   const repository = repositoryTools.connect();
 
-  const privateKey = fs.readFileSync(__dirname + "/../mount/private.key");
   const hashComparer = bcrypt.compare;
+
+  const privateKey = fs.readFileSync(__dirname + "/../mount/private.key");
 
   const jsonWebTokenSigner = (payload: {}) =>
     jsonwebtoken.sign(payload, privateKey, { algorithm: "RS256" });
@@ -76,13 +78,14 @@ function getRoot() {
   return {
     ...loginTool.create({
       credentialsRepository,
+      readAutoSave,
       hashComparer,
       jsonWebTokenSigner,
       getTimeAsDate,
     }),
     ...domainLogic.create({
       repository,
-      autoSaveRepository,
+      autoSaveWriter: autoSaveRepository,
       getTimeAsDate,
       createUuid,
     }),

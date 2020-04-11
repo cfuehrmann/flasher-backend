@@ -31,11 +31,11 @@ const dependencies: domainLogic.Dependencies = {
   createUuid: () => {
     throw new Error();
   },
-  autoSaveRepository: {
-    saveSnapshot: card => {
+  autoSaveWriter: {
+    write: card => {
       throw new Error();
     },
-    deleteSnapshot: () => {
+    delete: () => {
       throw new Error();
     },
   },
@@ -72,10 +72,10 @@ describe("domainLogic", () => {
           return;
         },
       };
-      const autoSaveRepository = dependencies.autoSaveRepository;
+      const autoSaveWriter = dependencies.autoSaveWriter;
       const logic = domainLogic.create({
         repository,
-        autoSaveRepository,
+        autoSaveWriter,
         getTimeAsDate: () => now,
         createUuid: () => id,
       });
@@ -112,7 +112,10 @@ describe("domainLogic", () => {
     });
   });
 
-  type RepositoryAction = { update: CardUpdate } | { deleteSnapshot: "called" };
+  type RepositoryAction =
+    | { update: CardUpdate }
+    | { deleteAutoSave: "called" }
+    | { writeAutoSave: Card };
 
   describe("updateCard", () => {
     const getSetup = () => {
@@ -129,10 +132,10 @@ describe("domainLogic", () => {
               return cardObjectReference;
             },
           },
-          autoSaveRepository: {
-            ...dependencies.autoSaveRepository,
-            deleteSnapshot: async () => {
-              trace.push({ deleteSnapshot: "called" });
+          autoSaveWriter: {
+            ...dependencies.autoSaveWriter,
+            delete: async () => {
+              trace.push({ deleteAutoSave: "called" });
               return;
             },
           },
@@ -165,7 +168,7 @@ describe("domainLogic", () => {
             solution: args.solution,
           },
         },
-        { deleteSnapshot: "called" },
+        { deleteAutoSave: "called" },
       ];
       assert.deepStrictEqual(setup.repoArgs, expected);
       assert.strictEqual(result, cardObjectReference);
@@ -196,7 +199,7 @@ describe("domainLogic", () => {
             nextTime: addMinutes(setup.now, 30),
           },
         },
-        { deleteSnapshot: "called" },
+        { deleteAutoSave: "called" },
       ];
       assert.deepStrictEqual(setup.repoArgs, expected);
       assert.strictEqual(result, cardObjectReference);
@@ -394,6 +397,70 @@ describe("domainLogic", () => {
         id: cardId,
         disabled: true,
       });
+    });
+  });
+
+  describe("writeAutoSave", () => {
+    it("repository should be called correctly", async () => {
+      // Arrange
+      const trace: RepositoryAction[] = [];
+      const now = new Date("2018-07-29T17:01:02.345Z");
+
+      const card: Card = {
+        id: "id",
+        prompt: "prompt",
+        solution: "solution",
+        state: "New",
+        changeTime: subSeconds(now, 42),
+        nextTime: subSeconds(now, 100),
+        disabled: false,
+      };
+
+      const logic = domainLogic.create({
+        ...dependencies,
+        autoSaveWriter: {
+          ...dependencies.autoSaveWriter,
+          write: async c => {
+            trace.push({ writeAutoSave: c });
+            return;
+          },
+        },
+        getTimeAsDate: () => now,
+      });
+
+      // Act
+      await logic.writeAutoSave(card, "user");
+
+      // Assert
+      const expected: RepositoryAction[] = [{ writeAutoSave: card }];
+      assert.deepStrictEqual(trace, expected);
+    });
+  });
+
+  describe("deleteAutoSave", () => {
+    it("repository should be called correctly", async () => {
+      // Arrange
+      const trace: RepositoryAction[] = [];
+      const now = new Date("2018-07-29T17:01:02.345Z");
+
+      const logic = domainLogic.create({
+        ...dependencies,
+        autoSaveWriter: {
+          ...dependencies.autoSaveWriter,
+          delete: async () => {
+            trace.push({ deleteAutoSave: "called" });
+            return;
+          },
+        },
+        getTimeAsDate: () => now,
+      });
+
+      // Act
+      await logic.deleteAutoSave({}, "user");
+
+      // Assert
+      const expected: RepositoryAction[] = [{ deleteAutoSave: "called" }];
+      assert.deepStrictEqual(trace, expected);
     });
   });
 });
