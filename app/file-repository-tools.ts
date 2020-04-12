@@ -12,23 +12,23 @@ export const createFileRepositoryTools = (fileName: string) => {
     let data = JSON.parse(json, reviver) as Card[]; // Todo: runtime check if the type assertion is correct?
 
     return {
-      createCard: card => {
+      createCard: async card => {
         const cardsWithSameId = data.filter(t => t.id === card.id);
         if (cardsWithSameId.length > 0) {
           throw new Error("Key already exists!");
         }
         data.push({ ...card });
-        writeJsonToFile(data);
+        await writeJsonToFile(data);
       },
 
-      readCard: id => {
+      readCard: async id => {
         const hits = data.filter(card => card.id === id);
         if (hits.length > 0) {
           return { ...hits[0] };
         }
       },
 
-      updateCard: ({
+      updateCard: async ({
         id,
         prompt,
         solution,
@@ -61,19 +61,19 @@ export const createFileRepositoryTools = (fileName: string) => {
             card.disabled = disabled;
           }
 
-          writeJsonToFile(data);
+          await writeJsonToFile(data);
 
           return { ...card };
         }
       },
 
-      deleteCard: id => {
+      deleteCard: async id => {
         data = data.filter(card => card.id !== id);
-        writeJsonToFile(data);
+        await writeJsonToFile(data);
         return true; // leave open for later if we want to return false when the record does not exist
       },
 
-      findCards: substring =>
+      findCards: async substring =>
         data
           .filter(
             card =>
@@ -82,7 +82,7 @@ export const createFileRepositoryTools = (fileName: string) => {
           )
           .map(card => ({ ...card })),
 
-      findNextCard: time =>
+      findNextCard: async time =>
         data
           // tslint:disable-next-line: strict-comparisons
           .filter(card => card.nextTime <= time && !card.disabled)
@@ -93,12 +93,12 @@ export const createFileRepositoryTools = (fileName: string) => {
     };
   }
 
-  function createEmptyRepository() {
-    writeJsonToFile([]);
+  async function createEmptyRepository() {
+    await writeJsonToFile([]);
   }
 
-  function writeJsonToFile(data: unknown) {
-    fs.writeFileSync(fileName, JSON.stringify(data, undefined, 4));
+  async function writeJsonToFile(data: unknown) {
+    await fs.promises.writeFile(fileName, JSON.stringify(data, undefined, 4));
   }
 
   function reviver(key: unknown, value: unknown) {

@@ -1,9 +1,10 @@
 import { addMinutes } from "date-fns";
 
-import { CredentialsRepository } from "./types";
+import { AutoSave, CredentialsRepository } from "./types";
 
 export type Dependencies = {
   credentialsRepository: CredentialsRepository;
+  readAutoSave: () => Promise<AutoSave | undefined>;
   hashComparer: (data: string, encrypted: string) => Promise<boolean>;
   jsonWebTokenSigner: (payload: {}) => string;
   getTimeAsDate: () => Date;
@@ -17,6 +18,7 @@ const tokenLifeTimeMinutes = 30;
 
 export const create = ({
   credentialsRepository,
+  readAutoSave,
   hashComparer,
   jsonWebTokenSigner,
   getTimeAsDate,
@@ -56,7 +58,9 @@ export const create = ({
           path: "/",
         });
 
-        return true;
+        const autoSave = await readAutoSave();
+
+        return { autoSave };
       }
     }
 

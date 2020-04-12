@@ -8,6 +8,9 @@ const dependencies: loginTool.Dependencies = {
       throw new Error();
     },
   },
+  readAutoSave: () => {
+    throw new Error();
+  },
   hashComparer: (data, encrypted) => {
     throw new Error();
   },
@@ -66,6 +69,7 @@ describe("loginTool", () => {
         credentialsRepository: {
           getPasswordHash: userName => "Joe",
         },
+        readAutoSave: async () => undefined,
         hashComparer: async (data, encrypted) => true,
         jsonWebTokenSigner: payload => JSON.stringify(payload),
         getTimeAsDate,
@@ -86,6 +90,25 @@ describe("loginTool", () => {
         assert.ok(options.maxAge !== undefined && options.maxAge > 0);
         assert.ok(options.path !== undefined && options.path.startsWith("/"));
       });
+    });
+
+    it("should return auto save", async () => {
+      const getTimeAsDate = () => new Date(2020, 6, 1);
+      const autoSave = { id: "id", prompt: "prompt", solution: "solution" };
+
+      const tool = loginTool.create({
+        credentialsRepository: {
+          getPasswordHash: userName => "Joe",
+        },
+        readAutoSave: async () => autoSave,
+        hashComparer: async (data, encrypted) => true,
+        jsonWebTokenSigner: payload => JSON.stringify(payload),
+        getTimeAsDate,
+      });
+
+      const result = await tool.login(credentials, () => undefined);
+
+      assert.deepStrictEqual(result, { autoSave });
     });
   });
 });

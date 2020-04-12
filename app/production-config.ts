@@ -1,3 +1,4 @@
+import { createFileAutoSaveRepositoryTools } from "./file-auto-save-repository-tools";
 import { createFileCredentialsRepositoryTools } from "./file-credentials-repository-tools";
 import { createFileRepositoryTools } from "./file-repository-tools";
 
@@ -10,4 +11,8 @@ export const repositoryTools = createFileRepositoryTools(
 
 export const credentialsRepositoryTools = createFileCredentialsRepositoryTools(
   __dirname + "/../mount/credentials-repository.json",
+);
+
+export const autoSaveRepositoryTools = createFileAutoSaveRepositoryTools(
+  __dirname + "/../mount/auto-save-repository.json",
 );

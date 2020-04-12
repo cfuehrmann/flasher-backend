@@ -7,6 +7,7 @@ import * as uuid from "uuid";
 import * as domainLogic from "./domain-logic";
 import * as loginTool from "./login-tool";
 import {
+  autoSaveRepositoryTools,
   credentialsRepositoryTools,
   repositoryTools,
 } from "./production-config";
@@ -41,6 +42,8 @@ const server = new ApolloServer({
       setFailed: apollify(root.setFailed),
       enable: apollify(root.enable),
       disable: apollify(root.disable),
+      writeAutoSave: apollify(root.writeAutoSave),
+      deleteAutoSave: apollify(root.deleteAutoSave),
     },
   },
   context: ({ req, res }) => ({
@@ -58,10 +61,13 @@ server
 
 function getRoot() {
   const credentialsRepository = credentialsRepositoryTools.connect();
+  const autoSaveRepository = autoSaveRepositoryTools.connect();
+  const readAutoSave = () => autoSaveRepository.read();
   const repository = repositoryTools.connect();
 
-  const privateKey = fs.readFileSync(__dirname + "/../mount/private.key");
   const hashComparer = bcrypt.compare;
+
+  const privateKey = fs.readFileSync(__dirname + "/../mount/private.key");
 
   const jsonWebTokenSigner = (payload: {}) =>
     jsonwebtoken.sign(payload, privateKey, { algorithm: "RS256" });
@@ -72,11 +78,17 @@ function getRoot() {
   return {
     ...loginTool.create({
       credentialsRepository,
+      readAutoSave,
       hashComparer,
       jsonWebTokenSigner,
       getTimeAsDate,
     }),
-    ...domainLogic.create({ repository, getTimeAsDate, createUuid }),
+    ...domainLogic.create({
+      repository,
+      autoSaveWriter: autoSaveRepository,
+      getTimeAsDate,
+      createUuid,
+    }),
   };
 }
 

@@ -1,20 +1,22 @@
 import { addMinutes, addSeconds, differenceInSeconds } from "date-fns";
 
-import { Repository, State } from "./types";
+import { AutoSaveWriter, Card, Repository, State } from "./types";
 
 export type Dependencies = {
   repository: Repository;
+  autoSaveWriter: AutoSaveWriter;
   getTimeAsDate: () => Date;
   createUuid: () => string;
 };
 
 export const create = ({
   repository,
+  autoSaveWriter,
   getTimeAsDate,
   createUuid,
 }: Dependencies) => {
   return {
-    createCard: (
+    createCard: async (
       {
         prompt,
         solution,
@@ -26,7 +28,7 @@ export const create = ({
     ) => {
       const now = getTimeAsDate();
 
-      repository.createCard({
+      await repository.createCard({
         id: createUuid(),
         prompt,
         solution,
@@ -37,9 +39,10 @@ export const create = ({
       });
     },
 
-    readCard: ({ id }: { id: string }, user: string) => repository.readCard(id),
+    readCard: async ({ id }: { id: string }, user: string) =>
+      repository.readCard(id),
 
-    updateCard: (
+    updateCard: async (
       {
         id,
         prompt,
@@ -52,65 +55,64 @@ export const create = ({
         isMinor: boolean;
       },
       user: string,
-    ) => {
-      if (isMinor) {
-        return repository.updateCard({
-          id,
-          prompt,
-          solution,
-        });
-      }
+    ) =>
+      isMinor
+        ? updateMinor(repository, autoSaveWriter, id, prompt, solution)
+        : updateMajor(
+            repository,
+            autoSaveWriter,
+            id,
+            prompt,
+            solution,
+            getTimeAsDate,
+          ),
 
-      const now = getTimeAsDate();
-
-      return repository.updateCard({
-        id,
-        prompt,
-        solution,
-        state: "New",
-        changeTime: now,
-        nextTime: addMinutes(now, 30),
-      });
-    },
-
-    deleteCard: ({ id }: { id: string }, user: string) =>
+    deleteCard: async ({ id }: { id: string }, user: string) =>
       repository.deleteCard(id),
 
-    cards: ({ substring }: { substring: string }, user: string) =>
+    cards: async ({ substring }: { substring: string }, user: string) =>
       repository.findCards(substring),
 
-    findNextCard: ({  }: {}, user: string) =>
+    findNextCard: async ({  }: {}, user: string) =>
       repository.findNextCard(getTimeAsDate()),
 
-    setOk: ({ id }: { id: string }, user: string) => {
-      setState(id, "Ok", passedTime => passedTime * 2);
+    setOk: async ({ id }: { id: string }, user: string) => {
+      await setState(id, "Ok", passedTime => passedTime * 2);
     },
 
-    setFailed: ({ id }: { id: string }, user: string) => {
-      setState(id, "Failed", passedTime => Math.floor(passedTime / 2));
+    setFailed: async ({ id }: { id: string }, user: string) => {
+      await setState(id, "Failed", passedTime => Math.floor(passedTime / 2));
     },
 
-    enable: ({ id }: { id: string }, user: string) => {
-      repository.updateCard({
+    enable: async ({ id }: { id: string }, user: string) => {
+      await repository.updateCard({
         id,
         disabled: false,
       });
     },
 
-    disable: ({ id }: { id: string }, user: string) => {
-      repository.updateCard({
+    disable: async ({ id }: { id: string }, user: string) => {
+      await repository.updateCard({
         id,
         disabled: true,
       });
     },
+
+    writeAutoSave: async (card: Card, user: string) => {
+      await autoSaveWriter.write(card);
+    },
+
+    deleteAutoSave: async ({  }: {}, user: string) => {
+      await autoSaveWriter.delete();
+    },
   };
 
-  function setState(
+  async function setState(
     id: string,
     state: State,
     getTimeToWait: (passedTime: number) => number,
   ) {
-    const card = repository.readCard(id);
+    const card = await repository.readCard(id);
 
     if (typeof card === "undefined") {
       return;
@@ -119,7 +121,7 @@ export const create = ({
     const now = getTimeAsDate();
     const passedTime = differenceInSeconds(now, card.changeTime);
 
-    repository.updateCard({
+    await repository.updateCard({
       id,
       state,
       changeTime: now,
@@ -127,3 +129,40 @@ export const create = ({
     });
   }
 };
+
+async function updateMajor(
+  repository: Repository,
+  autoSaveWriter: AutoSaveWriter,
+  id: string,
+  prompt: string,
+  solution: string,
+  getTimeAsDate: () => Date,
+) {
+  const now = getTimeAsDate();
+  const result = repository.updateCard({
+    id,
+    prompt,
+    solution,
+    state: "New",
+    changeTime: now,
+    nextTime: addMinutes(now, 30),
+  });
+  await autoSaveWriter.delete();
+  return result;
+}
+
+async function updateMinor(
+  repository: Repository,
+  autoSaveWriter: AutoSaveWriter,
+  id: string,
+  prompt: string,
+  solution: string,
+) {
+  const result = repository.updateCard({
+    id,
+    prompt,
+    solution,
+  });
+  await autoSaveWriter.delete();
+  return result;
+}
