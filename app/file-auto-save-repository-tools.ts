@@ -12,16 +12,22 @@ export const createFileAutoSaveRepositoryTools = (fileName: string) => {
           const buffer = await fs.readFile(fileName);
           return JSON.parse(buffer.toString()).card;
         } catch (e) {
-          if (e.code === "ENOENT") {
-            return undefined;
+          if (e.code !== "ENOENT") {
+            throw e;
           }
-
-          throw e;
         }
       },
-      write: async data =>
+      write: async (data) =>
         fs.writeFile(fileName, JSON.stringify(data, undefined, 4)),
-      delete: async () => fs.unlink(fileName),
+      delete: async () => {
+        try {
+          await fs.unlink(fileName);
+        } catch (e) {
+          if (e.code !== "ENOENT") {
+            throw e;
+          }
+        }
+      },
     };
   }
 };
